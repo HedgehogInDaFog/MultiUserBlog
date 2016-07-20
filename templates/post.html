@@ -1,0 +1,37 @@
+{% extends "blog.html"%}
+
+{% block content %}
+{% for post in posts %}
+
+<div id="content">
+    <div class="post">
+	  <div class="post-heading">
+	    <a href="/blog/{{ post.key().id()}}" class="post-subject">
+	      {{ post.subject }}
+	    </a>
+	  </div>
+
+  <div class="post-content">
+    {{ post.content }}
+  </div>
+
+  <div class="post-content">
+  Created:  {{ post.created }}
+  </div>
+
+  <div class="post-content">
+  Author:  {{ post.author }}
+  </div>
+
+  <div class="post-content">
+  Likes:  {{ post.likes }}
+  </div>
+
+  <hr>
+  <br><br>
+
+  <a href="/blog">Go to main page</a>
+</div>
+
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>New Post</title>
+    <style type="text/css">
+      .label {text-align: right}
+      .error {color: red}
+    </style>
+
+  </head>
+
+  <body>
+    <h2>New Post</h2>
+    <form method="post">
+      <table>
+        <tr>
+          <td class="label">
+            Post subject: 
+          </td>
+          <td>
+            <input type="text" name="subject" value="{{ subject }}">
+          </td>
+          <td class="error">
+            {{ err_subject }}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">
+            Post text: 
+          </td>
+          <td>
+            <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
+          </td>
+          <td class="error">
+            {{ err_post }}
+          </td>
+        </tr>
+
+        <a href="/blog">Go to main page</a>
+
+      <input type="submit">
+    </form>
+  </body>
+
+</html>
