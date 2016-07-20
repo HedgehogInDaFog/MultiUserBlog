@@ -1,16 +1,8 @@
-<!DOCTYPE html>
+{% extends "base.html"%}
 
-<html>
-  <head>
-    <title>Sign Up</title>
-    <style type="text/css">
-      .label {text-align: right}
-      .error {color: red}
-    </style>
+{% block title %}Sign Up{% endblock %}
 
-  </head>
-
-  <body>
+{% block content %}
     <h2>Sign Up</h2>
     <form method="post">
       <table>
@@ -68,6 +60,4 @@
 
     <a href="/blog">Read Blog without signup (read-only mode)</a>
     <br><br>
-  </body>
-
-</html>
+{% endblock %}

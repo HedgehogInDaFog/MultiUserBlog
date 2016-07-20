@@ -1,0 +1,172 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "Lato", sans-serif;
+}
+
+a,
+p {
+    color: #626255;
+    font: 300 14px Lato;
+    margin: 2px;
+}
+
+h1 {
+    color: #626255;
+    font: 100 28px Lato;
+    margin: 2px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+h2 {
+    color: #626255;
+    font: 400 24px Lato;
+    margin: 10px;
+}
+
+h3 {
+    color: #626255;
+    font: 400 14px Lato;
+    margin: 2px;
+    text-transform: uppercase;
+}
+
+h4 {
+    color: #626255;
+    font: 300 28px Lato;
+    margin: 2px;
+}
+
+img {
+    width:100%;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.full-width-content {
+    max-width: 1200px;
+    width:100%;
+}
+
+.header-titles {
+    text-align: right;
+    width: 75%;
+}
+
+.line {
+    background-color: #626255;
+    height: 1px;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.logo {
+    max-width: 100px;
+}
+
+.logo-cont {
+    width: 25%;
+}
+
+.small-blocks {
+    margin-bottom: 18px;
+    margin: 4px;
+    max-width: 600px;
+    text-align: center;
+    width: 100%;
+}
+
+.post {
+    max-width: 1200px;
+    margin: 4px;
+    width: 100%;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 4px;
+    width: 100%;
+}
+
+@media screen and (min-width: 450px) {
+    h1,
+    h4 {
+        font-size: 32px;
+        }
+
+    h2 {
+        font-size: 24px;
+        }
+
+    h3 {
+        font-size: 14px;
+        }
+
+    }
+
+@media screen and (min-width: 640px) {
+    h1,
+    h4 {
+        font-size: 32px;
+        }
+
+    h3 {
+        font-size: 14px;
+        }
+
+    .small-blocks {
+        width: 48%;
+        }
+
+    .line {
+        height:2px;
+        }
+
+    }
+
+@media screen and (min-width: 880px) {
+    h1,
+    h4 {
+        font-size: 36px;
+        }
+
+    h2 {
+        font-size: 28px;
+        }
+
+    h3 {
+        font-size: 16px;
+        }
+
+    .small-blocks {
+        width: 32%;
+        }
+
+    }
+
+    @media screen and (min-width: 1020px) {
+    h1,
+    h4 {
+        font-size: 42px;
+        }
+
+    h3 {
+        font-size: 18px;
+        }
+
+    }
+

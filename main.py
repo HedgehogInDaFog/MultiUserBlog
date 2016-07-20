@@ -28,10 +28,7 @@ def make_pw_hash(name, pw):
 
 
 def valid_pw(name, pw, hashtext, salt):
-    if hashlib.sha256(name + pw + salt).hexdigest() == hashtext:
-        return True
-    else:
-        return False
+    return hashlib.sha256(name + pw + salt).hexdigest() == hashtext
 
 
 class Users(db.Model):
@@ -133,10 +130,7 @@ class Login(Handler):
         elif not valid_password(password):
             self.render("login.html", username=username, err_password=err_password)
         else:
-            query = "SELECT * FROM Users WHERE username = " #TODO
-            query += "'"
-            query += str(username)
-            query += "'"
+            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
             a = db.GqlQuery(query)
             if valid_pw(username, password, a.get().hashtext, a.get().salt):
                 cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)

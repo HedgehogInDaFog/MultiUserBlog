@@ -1,11 +1,10 @@
+{% extends "base.html"%}
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Multi User Blog</title>
-</head>
+{% block title %}Blog{% endblock %}
 
-<body>
+{% block hello %} <h3>You logged in as {{ user }} </h3> {% endblock %}
+
+{% block content %}
   <a href="/blog">
     Multi User Blog
   </a>
@@ -15,8 +14,7 @@
   </a>
    	<br><br>
 
-{% block content %}
+{% block postcontent %}
 {% endblock %}
 
-</body>
-</html>
+{% endblock %}

@@ -1,16 +1,10 @@
-<!DOCTYPE html>
+{% extends "base.html"%}
 
-<html>
-  <head>
-    <title>New Post</title>
-    <style type="text/css">
-      .label {text-align: right}
-      .error {color: red}
-    </style>
+{% block title %}New Post{% endblock %}
 
-  </head>
+{% block hello %} <h3>You logged in as {{ user }} </h3> {% endblock %}
 
-  <body>
+{% block content %}
     <h2>New Post</h2>
     <form method="post">
       <table>
@@ -37,11 +31,9 @@
             {{ err_post }}
           </td>
         </tr>
-
+      </table>
         <a href="/blog">Go to main page</a>
 
       <input type="submit">
     </form>
-  </body>
-
-</html>
+{% endblock %}
