@@ -31,6 +31,23 @@ def valid_pw(name, pw, hashtext, salt):
     return hashlib.sha256(name + pw + salt).hexdigest() == hashtext
 
 
+def valid_cookie(cookie):
+    return cookie and len(cookie)  # COOKIE_RE.match(cookie)
+
+
+def get_user_from_cookie(self):
+    cookie = self.request.cookies.get('login')
+    if valid_cookie(cookie):
+        user_id = cookie.split('|')[0]
+        user = Users.get_by_id(int(user_id))
+        if user.username:
+            return str(user.username)
+        else:
+            return "Anonymous"
+    else:
+        return "Anonymous"
+
+
 class Users(db.Model):
     username = db.StringProperty()
     hashtext = db.StringProperty()
@@ -142,9 +159,6 @@ class SuccessPage(Handler):
 
     def get(self):
 
-        def valid_cookie(cookie):
-            return cookie and len(cookie)#COOKIE_RE.match(cookie)
-
         cookie = self.request.cookies.get('login')
         if valid_cookie(cookie):
             user_id = cookie.split('|')[0]
@@ -166,22 +180,28 @@ class Logout(Handler):
 class MainPage(Handler):
     def get(self):
         posts = db.GqlQuery("SELECT * FROM Posts ORDER BY created DESC limit 10")
-        self.render("post.html", posts=posts)
+        user = get_user_from_cookie(self)
+        self.render("post.html", posts=posts, user=user)
+
 
 
 class SinglePost(Handler):
     def get(self, product_id):
-        self.render("post.html", posts=[Posts.get_by_id(int(product_id))])
+        user = get_user_from_cookie(self)
+        self.render("post.html", posts=[Posts.get_by_id(int(product_id))], user=user)
 
 
 class NewPost(Handler):
     def get(self):
-        self.render("newpost.html")
+        user = get_user_from_cookie(self)
+        self.render("newpost.html", user=user)
 
     def post(self):
 
-        err_subject = "Error in subject!"
-        err_post = "Error in post!"
+        user = get_user_from_cookie(self)
+
+        err_subject = "Error in subject"
+        err_post = "Error in post"
 
         def valid(text):
             if len(text) > 0:
@@ -193,9 +213,9 @@ class NewPost(Handler):
         content = self.request.get("content")
 
         if not valid(subject):
-            self.render("newpost.html", subject=subject, content=content, err_subject=err_subject)
+            self.render("newpost.html", subject=subject, content=content, err_subject=err_subject, user=user)
         elif not valid(content):
-            self.render("newpost.html", subject=subject, content=content, err_post=err_post)
+            self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
             a = Posts(subject=subject, content=content)
             a.put()
