@@ -4,7 +4,9 @@
 
 {% block content %}
 <div class="container">
-<h2>Login</h2>
+  <h2>Login</h2>
+</div>  
+<div class="container">
   <form method="post">
     <table>
       <tr>
@@ -31,10 +33,11 @@
         </td>
       </tr>
     </table>
-    <input type="submit">
+    <input type="submit" value="Log in">
   </form>
 </div>  
 <div class="container">
   <a href="/blog">Go to main page</a>
+  <a href="/blog/signup">Sign Up</a>
 </div>
 {% endblock %}

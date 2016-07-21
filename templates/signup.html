@@ -3,61 +3,67 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-    <h2>Sign Up</h2>
-    <form method="post">
-      <table>
-        <tr>
-          <td class="label">
-            Username
-          </td>
-          <td>
-            <input type="text" name="username" value="{{ username }}">
-          </td>
-          <td class="error">
-            {{ err_login }}
-          </td>
-        </tr>
+<div class="container">
+  <h2>Sign Up</h2>
+</div>  
+<div class="container">
+  <form method="post">
+    <table>
+      <tr>
+        <td class="label">
+          Username
+        </td>
+        <td>
+          <input type="text" name="username" value="{{ username }}">
+        </td>
+        <td class="error">
+          {{ err_login }}
+        </td>
+      </tr>
 
-        <tr>
-          <td class="label">
-            Password
-          </td>
-          <td>
-            <input type="password" name="password" value="{{ password }}">
-          </td>
-          <td class="error">
-            {{ err_password }}
-          </td>
-        </tr>
+      <tr>
+        <td class="label">
+          Password
+        </td>
+        <td>
+          <input type="password" name="password" value="{{ password }}">
+        </td>
+        <td class="error">
+          {{ err_password }}
+        </td>
+      </tr>
 
-        <tr>
-          <td class="label">
-            Verify Password
-          </td>
-          <td>
-            <input type="password" name="verify" value="{{ verify }}">
-          </td>
-          <td class="error">
-            {{ err_verify }}
-          </td>
-        </tr>
+      <tr>
+        <td class="label">
+          Verify Password
+        </td>
+        <td>
+          <input type="password" name="verify" value="{{ verify }}">
+        </td>
+        <td class="error">
+          {{ err_verify }}
+        </td>
+      </tr>
 
-        <tr>
-          <td class="label">
-            Email (optional)
-          </td>
-          <td>
-            <input type="text" name="email" value="{{ email }}">
-          </td>
-          <td class="error">
-            {{ err_email }}
-          </td>
-        </tr>
-      </table>
+      <tr>
+        <td class="label">
+          Email (optional)
+        </td>
+        <td>
+          <input type="text" name="email" value="{{ email }}">
+        </td>
+        <td class="error">
+          {{ err_email }}
+        </td>
+      </tr>
+    </table>
 
-      <input type="submit">
-    </form>
-
-    <a href="/blog">Read Blog without signup (read-only mode)</a>
-    <br><br>
+    <input type="submit" value="Sign Up">
+  </form>
+</div>  
+<div class="container">
+  <a href="/blog">Go to main page</a>
+  <a href="/blog/login">Log in</a>
+  <br><br>
+</div>  
 {% endblock %}
