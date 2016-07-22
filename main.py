@@ -136,8 +136,10 @@ class Login(Handler):
         def valid_password(password):
             return PASS_RE.match(password)
 
-        err_login = "Invalid Username!"
+        err_login = "Invalid username"
         err_password = "Invalid password"
+        incorrect_login = "No such user. Try to sign up"
+        incorrect_password = "Incorrect password"
 
         username = self.request.get("username")
         password = self.request.get("password")
@@ -149,10 +151,14 @@ class Login(Handler):
         else:
             query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
             a = db.GqlQuery(query)
-            if valid_pw(username, password, a.get().hashtext, a.get().salt):
+            if not a.get():  # TODO is correct?
+                self.render("login.html", username=username, err_login=incorrect_login)
+            elif valid_pw(username, password, a.get().hashtext, a.get().salt):
                 cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)
                 self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
                 self.redirect("/blog/welcome")
+            else:
+                self.render("login.html", username=username, err_password=incorrect_password)
 
 
 class SuccessPage(Handler):
