@@ -108,7 +108,7 @@ class SignUp(Handler):
         elif not valid_password(password):
             self.render("signup.html", username=username, email=email, err_password=err_password)
         elif not valid_mail(email):
-            self.render("signup.html", username=username, email=email, err_mail=err_email)
+            self.render("signup.html", username=username, email=email, err_email=err_email)
         elif password != verify:
             self.render("signup.html", username=username, email=email, err_verify=err_verify)
         else:
