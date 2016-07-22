@@ -1,32 +1,43 @@
 {% extends "blog.html"%}
 
 {% block postcontent %}
+  <a href="/blog">Go to the main page</a>
+  <br><br>
 {% for post in posts %}
 
-<div class="post">
-  <div class="post-heading">
-    <a href="/blog/{{ post.key().id()}}" class="post-subject">
-      {{ post.subject }}
-    </a>
+<div class="post container">
+  
+  <a href="/blog/{{ post.key().id()}}" class="post-subject">{{ post.subject }}</a>
+
+  <div class="post-content">
+    {{ post.content }}
   </div>
 
-<div class="post-content">
-  {{ post.content }}
-</div>
+  <div class="post-attr">
+  Created:  {{ post.created }}
+  </div>
 
-<div class="post-content">
-Created:  {{ post.created }}
-</div>
+  <div class="post-attr">
+  Last edited:  {{ post.lastEdited }}
+  </div>
 
-<div class="post-content">
-Author:  {{ post.author }}
-</div>
+  <div class="post-attr">
+  Author:  {{ post.author }}
+  </div>
 
-<div class="post-content">
-Likes:  {{ post.likes }}
-</div>
+  <div class="post-attr">
+  Likes:  {{ post.likes }}
+  </div>
 
-<hr>
+  <div class="button">
+    Like
+  </div>
+
+  <div class="button">
+    Comment
+  </div>
+
+  <hr>
 </div>
 
 {% endfor %}

@@ -44,6 +44,16 @@ img {
     width:100%;
 }
 
+.button {
+    width: 100px;
+    background-color: #626255;
+    color: #ffffff;
+    margin: 5px;
+    text-align: center;
+
+}
+
+
 .container {
     display: flex;
     flex-wrap: wrap;
@@ -52,6 +62,12 @@ img {
     margin-left: auto;
     margin-right: auto;
     max-width: 1200px;
+    width: 100%;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 4px;
     width: 100%;
 }
 
@@ -96,10 +112,26 @@ img {
     width: 100%;
 }
 
-.content {
-    max-width: 1200px;
-    margin: 4px;
+.post-attr {
+    color: #626255;
+    font: 300 14px Lato;
+    margin: 2px;
     width: 100%;
+}
+
+.post-content {
+    color: #626255;
+    font: 800 16px Lato;
+    margin: 2px;
+    width: 99%;
+    align-items: center;
+
+}
+
+.post-subject {
+    color: #626255;
+    font: 800 22px Lato;
+    margin: 2px;
 }
 
 @media screen and (min-width: 450px) {

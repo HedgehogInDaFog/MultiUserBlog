@@ -198,6 +198,7 @@ class SinglePost(Handler):
 
 
 class NewPost(Handler):
+    #TODO: edit, like, comment
     def get(self):
         user = get_user_from_cookie(self)
         self.render("newpost.html", user=user)
@@ -216,14 +217,14 @@ class NewPost(Handler):
                 return False
 
         subject = self.request.get("subject")
-        content = self.request.get("content")
+        content = self.request.get("content") # TODO: preserve \n for better formating opportunities
 
         if not valid(subject):
             self.render("newpost.html", subject=subject, content=content, err_subject=err_subject, user=user)
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
-            a = Posts(subject=subject, content=content)
+            a = Posts(subject=subject, content=content, author=user, likes=0)
             a.put()
             self.redirect("/blog/" + str(a.key().id()))
 
