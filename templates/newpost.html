@@ -2,7 +2,10 @@
 
 {% block title %}New Post{% endblock %}
 
-{% block hello %} <h3>You logged in as {{ user }} </h3> {% endblock %}
+{% block hello %} 
+<h3>You logged in as {{ user }} </h3> 
+<a href="/blog/logout">Logout</a>
+{% endblock %}
 
 {% block content %}
 <div class="container">

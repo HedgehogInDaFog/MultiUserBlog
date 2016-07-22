@@ -2,12 +2,19 @@
 
 {% block title %}Welcome{% endblock %}
 
-{% block hello %} <h3>You logged in as {{ username }} </h3> {% endblock %}
+{% block hello %} 
+<h3>You logged in as {{ username }} </h3> 
+<a href="/blog/logout">Logout</a>
+{% endblock %}
 
 {% block content %}
-    <h2>Welcome, {{ username }}!</h2>
-    <a href="/blog">Read Blog</a>
-   	<br><br>
-  	<a href="blog/newpost">Add a new post</a>
-   	<br><br>
+<div class="container">
+  <h2>Welcome, {{ username }}!</h2>
+</div>
+<div class="container">
+  <a href="/blog">Read Blog</a>
+  <br><br>
+  <a href="/blog/newpost">Add a new post</a>
+  <br><br>
+</div>
 {% endblock %}
