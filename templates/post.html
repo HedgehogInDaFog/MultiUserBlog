@@ -37,6 +37,12 @@
     Comment
   </div>
 
+{% if post.author == user %}
+  <div class="button">
+    Edit
+  </div>
+{% endif %}
+  
   <hr>
 </div>
 
