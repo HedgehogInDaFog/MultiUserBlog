@@ -93,7 +93,15 @@ class SignUp(Handler):
                 return True
             return MAIL_RE.match(mail)
 
+        def existing_username(username):
+            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
+            a = db.GqlQuery(query)
+            if not a.get():
+                return False
+            return True
+
         err_login = "Invalid username"
+        err_login_exist = "Username already exist"
         err_password = "Invalid password"
         err_verify = "Passwords do not match"
         err_email = "Invalid e-mail"
@@ -105,6 +113,8 @@ class SignUp(Handler):
 
         if not valid_username(username):
             self.render("signup.html", username=username, email=email, err_login=err_login)
+        elif existing_username(username):
+            self.render("signup.html", username=username, email=email, err_login=err_login_exist)
         elif not valid_password(password):
             self.render("signup.html", username=username, email=email, err_password=err_password)
         elif not valid_mail(email):
