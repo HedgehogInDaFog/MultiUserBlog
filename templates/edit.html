@@ -1,0 +1,49 @@
+{% extends "base.html"%}
+
+{% block title %}Edit Post{% endblock %}
+
+{% block hello %} 
+<h3>You logged in as {{ user }} </h3> 
+<a href="/blog/logout">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Edit Post</h2>
+</div>  
+
+<div class="container">
+  <form method="post">
+    <table>
+      <tr>
+        <td class="label">
+          Post subject: 
+        </td>
+        <td>
+          <input type="text" name="subject" value="{{ subject }}">
+        </td>
+        <td class="error">
+          {{ err_subject }}
+        </td>
+      </tr>
+
+      <tr>
+        <td class="label">
+          Post text: 
+        </td>
+        <td>
+          <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
+        </td>
+        <td class="error">
+          {{ err_post }}
+        </td>
+      </tr>
+    </table>
+    <input type="submit" value="Publish">
+  </form>
+</div>  
+<div class="container">
+  <a href="/blog">Go to main page</a>
+  <br><br>
+</div>  
+{% endblock %}

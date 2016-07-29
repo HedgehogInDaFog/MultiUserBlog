@@ -5,6 +5,7 @@ import re
 import random
 import string
 import hashlib
+import datetime
 
 from google.appengine.ext import db
 
@@ -204,7 +205,7 @@ class MainPage(Handler):
 class SinglePost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
-        self.render("post.html", posts=[Posts.get_by_id(int(product_id))], user=user)
+        self.render("post.html", posts=[Posts.get_by_id(int(product_id))], user=user, id=product_id)
 
 
 class NewPost(Handler):
@@ -239,6 +240,53 @@ class NewPost(Handler):
             self.redirect("/blog/" + str(a.key().id()))
 
 
+class EditPost(Handler):
+    def get(self, product_id):
+        user = get_user_from_cookie(self)
+        if Posts.get_by_id(int(product_id)):
+            post = Posts.get_by_id(int(product_id)) # TODO exception
+            content = post.content
+            subject = post.subject
+            author = post.author
+        if author == user:
+            self.render("edit.html", user=user, content=content, subject=subject)
+        else:
+            self.redirect("/blog/login")  # TODO strange logic
+
+    def post(self, product_id):
+
+        user = get_user_from_cookie(self)
+
+        err_subject = "Error in subject"
+        err_post = "Error in post"
+
+        def valid(text):
+            if len(text) > 0:
+                return True
+            else:
+                return False
+
+        subject = self.request.get("subject")
+        content = self.request.get("content")  # TODO: preserve \n for better formating opportunities
+
+        if Posts.get_by_id(int(product_id)):
+            post = Posts.get_by_id(int(product_id))
+        else:
+            self.redirect("/blog/login")  # TODO: strange logic
+        # TODO Last edited
+
+        if not valid(subject):
+            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user)
+        elif not valid(content):
+            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user)
+        else:
+            post.content = content
+            post.subject = subject
+            post.lastEdited = datetime.datetime.now()
+            post.put()
+            self.redirect("/blog/" + str(product_id))
+
+
 app = webapp2.WSGIApplication([
     ('/blog/signup', SignUp),
     ('/blog/welcome', SuccessPage),
@@ -246,5 +294,6 @@ app = webapp2.WSGIApplication([
     ('/blog/logout', Logout),
     ('/blog', MainPage),
     ('/blog/newpost', NewPost),
+    (r'/blog/edit/(\d+)', EditPost),
     (r'/blog/(\d+)', SinglePost)
 ], debug=True)

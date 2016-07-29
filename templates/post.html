@@ -38,9 +38,11 @@
   </div>
 
 {% if post.author == user %}
-  <div class="button">
-    Edit
-  </div>
+  
+    <a href="/blog/edit/{{ post.key().id() }}">
+      <div class="button">Edit</div>
+    </a>
+
 {% endif %}
   
   <hr>
