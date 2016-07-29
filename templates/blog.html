@@ -3,8 +3,15 @@
 {% block title %}Blog{% endblock %}
 
 {% block hello %} 
+{% if user != 'Anonymous' %}
 <h3>You logged in as {{ user }} </h3> 
 <a href="/blog/logout">Logout</a>
+{% else %}
+<h3>You didn't logged in. </h3> 
+<a href="/blog/login">Log In</a>
+<br>
+<a href="/blog/signup">Sign Up</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
