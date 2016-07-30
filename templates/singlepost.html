@@ -32,9 +32,11 @@
   Number of Comments:  {{ comments_count }}
   </div>
 
-  <div class="button">
-    Like
-  </div>
+{% if post.author != user %}
+  <a href="/blog/like/{{ id }}">
+    <div class="button">Like</div>
+  </a>
+{% endif %}
 
   <a href="/blog/newpost/{{ id }}">
     <div class="button">Comment</div>
@@ -53,7 +55,6 @@
   <h3>Comments:</h3>
   <br>
 </div>
-
 
 {% for post in comments %}
 
@@ -81,9 +82,11 @@
   Likes:  {{ post.likes }}
   </div>
 
-  <div class="button">
-    Like
-  </div>
+{% if post.author != user %}
+  <a href="/blog/like/{{ post.key().id() }}">
+    <div class="button">Like</div>
+  </a>
+{% endif %}
 
   <a href="/blog/newpost/{{ post.key().id() }}">
     <div class="button">Comment</div>
@@ -99,9 +102,5 @@
 </div>
 
 {% endfor %}
-
-
-<hr>
-
 
 {% endblock %}  

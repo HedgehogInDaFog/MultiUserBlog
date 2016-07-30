@@ -49,6 +49,14 @@ def get_user_from_cookie(self):
         return "Anonymous"
 
 
+def get_user_id_from_cookie(self):
+    cookie = self.request.cookies.get('login')
+    if valid_cookie(cookie):
+        return int(cookie.split('|')[0])
+    else:
+        return None
+
+
 class Users(db.Model):
     username = db.StringProperty()
     hashtext = db.StringProperty()
@@ -65,11 +73,16 @@ class Posts(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     lastEdited = db.DateTimeProperty(auto_now_add=True)
     isRoot = db.BooleanProperty()
-    
+
 
 class PostsHierarchy(db.Model):
     postID = db.IntegerProperty()
     child = db.IntegerProperty()
+
+
+class Likes(db.Model):
+    postID = db.IntegerProperty()
+    userID = db.IntegerProperty()
 
 
 class Handler(webapp2.RequestHandler):
@@ -316,6 +329,20 @@ class EditPost(Handler):
             post.put()
             self.redirect("/blog/" + str(product_id))
 
+class Like(Handler):
+    def get(self, product_id):
+        userID = get_user_id_from_cookie(self)
+        user = get_user_from_cookie(self)
+        query = "SELECT * FROM Likes WHERE postID = " + str(product_id) + " AND userID = " + str(userID)
+        likes = db.GqlQuery(query)
+        post = Posts.get_by_id(int(product_id))
+        if likes.count() == 0 and post.author != user:
+            a = Likes(postID=int(product_id), userID=userID)
+            post.likes += 1
+            post.put()
+            a.put()
+        self.redirect("/blog/" + str(product_id))    
+
 
 app = webapp2.WSGIApplication([
     ('/blog/signup', SignUp),
@@ -326,5 +353,6 @@ app = webapp2.WSGIApplication([
     ('/blog/newpost', NewPost),
     (r'/blog/newpost/(\d+)', NewComment),
     (r'/blog/edit/(\d+)', EditPost),
-    (r'/blog/(\d+)', SinglePost)
+    (r'/blog/(\d+)', SinglePost),
+    (r'/blog/like/(\d+)', Like)
 ], debug=True)
