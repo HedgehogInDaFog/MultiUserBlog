@@ -64,6 +64,11 @@ class Posts(db.Model):
     author = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
     lastEdited = db.DateTimeProperty(auto_now_add=True)
+    
+
+class PostsHierarchy(db.Model):
+    postID = db.IntegerProperty()
+    child = db.IntegerProperty()
 
 
 class Handler(webapp2.RequestHandler):
@@ -209,7 +214,7 @@ class SinglePost(Handler):
 
 
 class NewPost(Handler):
-    #TODO: edit, like, comment
+    #TODO: like, comment
     def get(self):
         user = get_user_from_cookie(self)
         self.render("newpost.html", user=user)
@@ -230,16 +235,34 @@ class NewPost(Handler):
         subject = self.request.get("subject")
         content = self.request.get("content") # TODO: preserve \n for better formating opportunities
 
+        parent = 0 #self.request.get("parent")
+
         if not valid(subject):
-            self.render("newpost.html", subject=subject, content=content, err_subject=err_subject, user=user)
+            self.render(
+                "newpost.html",
+                subject=subject,
+                content=content,
+                err_subject=err_subject,
+                user=user
+                )
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
             a = Posts(subject=subject, content=content, author=user, likes=0)
             a.put()
+            b = PostsHierarchy(postID=parent, child=a.key().id())
+            b.put()
             self.redirect("/blog/" + str(a.key().id()))
 
+class NewComment(Handler):
+    #TODO: like, comment
+    def get(self):
+        user = get_user_from_cookie(self)
+        self.render("newpost.html", user=user)
 
+    def post(self):
+        pass #TODO
+       
 class EditPost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
@@ -273,7 +296,6 @@ class EditPost(Handler):
             post = Posts.get_by_id(int(product_id))
         else:
             self.redirect("/blog/login")  # TODO: strange logic
-        # TODO Last edited
 
         if not valid(subject):
             self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user)
@@ -294,6 +316,7 @@ app = webapp2.WSGIApplication([
     ('/blog/logout', Logout),
     ('/blog', MainPage),
     ('/blog/newpost', NewPost),
+    (r'/blog/newpost/(\d+)', NewComment),
     (r'/blog/edit/(\d+)', EditPost),
     (r'/blog/(\d+)', SinglePost)
 ], debug=True)
