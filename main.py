@@ -83,6 +83,48 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 
+class Login(Handler):
+    def get(self):
+        self.render("login.html")
+
+    def post(self):
+        def valid_username(username):
+            return USER_RE.match(username)
+
+        def valid_password(password):
+            return PASS_RE.match(password)
+
+        err_login = "Invalid username"
+        err_password = "Invalid password"
+        incorrect_login = "No such user. Try to sign up"
+        incorrect_password = "Incorrect password"
+
+        username = self.request.get("username")
+        password = self.request.get("password")
+
+        if not valid_username(username):
+            self.render("login.html", username=username, err_login=err_login)
+        elif not valid_password(password):
+            self.render("login.html", username=username, err_password=err_password)
+        else:
+            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
+            a = db.GqlQuery(query)
+            if not a.get():  # TODO is correct?
+                self.render("login.html", username=username, err_login=incorrect_login)
+            elif valid_pw(username, password, a.get().hashtext, a.get().salt):
+                cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)
+                self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
+                self.redirect("/blog/welcome")
+            else:
+                self.render("login.html", username=username, err_password=incorrect_password)
+
+
+class Logout(Handler):
+
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % '')
+        self.redirect("/blog/signup")
+
 class SignUp(Handler):
     def get(self):
         self.render("signup.html")
@@ -141,46 +183,9 @@ class SignUp(Handler):
             self.redirect("/blog/welcome")
 
 
-class Login(Handler):
-    def get(self):
-        self.render("login.html")
-
-    def post(self):
-        def valid_username(username):
-            return USER_RE.match(username)
-
-        def valid_password(password):
-            return PASS_RE.match(password)
-
-        err_login = "Invalid username"
-        err_password = "Invalid password"
-        incorrect_login = "No such user. Try to sign up"
-        incorrect_password = "Incorrect password"
-
-        username = self.request.get("username")
-        password = self.request.get("password")
-
-        if not valid_username(username):
-            self.render("login.html", username=username, err_login=err_login)
-        elif not valid_password(password):
-            self.render("login.html", username=username, err_password=err_password)
-        else:
-            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
-            a = db.GqlQuery(query)
-            if not a.get():  # TODO is correct?
-                self.render("login.html", username=username, err_login=incorrect_login)
-            elif valid_pw(username, password, a.get().hashtext, a.get().salt):
-                cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)
-                self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
-                self.redirect("/blog/welcome")
-            else:
-                self.render("login.html", username=username, err_password=incorrect_password)
-
-
 class SuccessPage(Handler):
 
     def get(self):
-
         cookie = self.request.cookies.get('login')
         if valid_cookie(cookie):
             user_id = cookie.split('|')[0]
@@ -193,11 +198,6 @@ class SuccessPage(Handler):
             self.redirect("/blog/signup")
 
 
-class Logout(Handler):
-
-    def get(self):
-        self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % '')
-        self.redirect("/blog/signup")
 
 class MainPage(Handler):
     def get(self):
@@ -235,7 +235,7 @@ class NewPost(Handler):
         subject = self.request.get("subject")
         content = self.request.get("content") # TODO: preserve \n for better formating opportunities
 
-        parent = 0 #self.request.get("parent")
+        parent = 0  # self.request.get("parent")
 
         if not valid(subject):
             self.render(
@@ -244,7 +244,7 @@ class NewPost(Handler):
                 content=content,
                 err_subject=err_subject,
                 user=user
-                )
+            )
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
@@ -254,6 +254,7 @@ class NewPost(Handler):
             b.put()
             self.redirect("/blog/" + str(a.key().id()))
 
+
 class NewComment(Handler):
     #TODO: like, comment
     def get(self):
@@ -262,6 +263,7 @@ class NewComment(Handler):
 
     def post(self):
         pass #TODO
+
        
 class EditPost(Handler):
     def get(self, product_id):
