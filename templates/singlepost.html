@@ -1,0 +1,107 @@
+{% extends "blog.html"%}
+
+{% block postcontent %}
+<a href="/blog">Go to the main page</a>
+<br><br>
+
+<div class="post container">
+  
+  <a href="/blog/{{ id }}" class="post-subject">{{ post.subject }}</a>
+
+  <div class="post-content">
+    {{ post.content }}
+  </div>
+
+  <div class="post-attr">
+  Created:  {{ post.created }}
+  </div>
+
+  <div class="post-attr">
+  Last edited:  {{ post.lastEdited }}
+  </div>
+
+  <div class="post-attr">
+  Author:  {{ post.author }}
+  </div>
+
+  <div class="post-attr">
+  Likes:  {{ post.likes }}
+  </div>
+
+  <div class="post-attr">
+  Number of Comments:  {{ comments_count }}
+  </div>
+
+  <div class="button">
+    Like
+  </div>
+
+  <a href="/blog/newpost/{{ id }}">
+    <div class="button">Comment</div>
+  </a>
+
+{% if post.author == user %}
+    <a href="/blog/edit/{{ id }}">
+      <div class="button">Edit</div>
+    </a>
+{% endif %}
+  <hr>  
+</div>
+
+<div class="post container">
+  <br>  
+  <h3>Comments:</h3>
+  <br>
+</div>
+
+
+{% for post in comments %}
+
+<div class="post container">
+  
+  <a href="/blog/{{ post.key().id()}}" class="post-subject">{{ post.subject }}</a>
+
+  <div class="post-content">
+    {{ post.content }}
+  </div>
+
+  <div class="post-attr">
+  Created:  {{ post.created }}
+  </div>
+
+  <div class="post-attr">
+  Last edited:  {{ post.lastEdited }}
+  </div>
+
+  <div class="post-attr">
+  Author:  {{ post.author }}
+  </div>
+
+  <div class="post-attr">
+  Likes:  {{ post.likes }}
+  </div>
+
+  <div class="button">
+    Like
+  </div>
+
+  <a href="/blog/newpost/{{ post.key().id() }}">
+    <div class="button">Comment</div>
+  </a>
+
+{% if post.author == user %}
+    <a href="/blog/edit/{{ post.key().id() }}">
+      <div class="button">Edit</div>
+    </a>
+{% endif %}
+
+  <hr>
+</div>
+
+{% endfor %}
+
+
+<hr>
+
+
+{% endblock %}  

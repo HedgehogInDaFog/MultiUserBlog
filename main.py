@@ -206,11 +206,17 @@ class MainPage(Handler):
         self.render("post.html", posts=posts, user=user)
 
 
-
 class SinglePost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
-        self.render("post.html", posts=[Posts.get_by_id(int(product_id))], user=user, id=product_id)
+        query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(product_id)
+        children_id = db.GqlQuery(query)
+        comments = []
+        for i in range(children_id.count()):
+            tmp = children_id.get(offset=i).child
+            comments.append(Posts.get_by_id(int(tmp)))
+        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count = children_id.count(), comments=comments)
+
 
 class NewRecord(Handler):
     def get(self, product_id=0):

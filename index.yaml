@@ -16,6 +16,11 @@ indexes:
   - name: created
     direction: desc
 
+- kind: PostsHierarchy
+  properties:
+  - name: postID
+  - name: child
+
 - kind: Users
   properties:
   - name: Users.username
