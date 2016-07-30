@@ -4,7 +4,7 @@
 
 {% block hello %} 
 {% if user != 'Anonymous' %}
-<h3>You logged in as {{ user }} </h3> 
+<h3>You logged in as <span class="purple"> {{ user }} </span></h3> 
 <a href="/blog/logout">Logout</a>
 {% else %}
 <h3>You didn't logged in. </h3> 
@@ -15,9 +15,6 @@
 {% endblock %}
 
 {% block content %}
-
-  <a href="/blog/newpost">New post</a>
-  <br><br>
 
 {% block postcontent %}
 {% endblock %}

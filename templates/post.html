@@ -1,8 +1,12 @@
 {% extends "blog.html"%}
 
 {% block postcontent %}
-  <a href="/blog">Go to the main page</a>
-  <br><br>
+  <div class="w11"></div>
+  <div class="w1">
+    <a href="/blog/newpost">
+        <div class="button">New Post</div>
+    </a>
+  </div>
 {% for post in posts %}
 
 <div class="post container">

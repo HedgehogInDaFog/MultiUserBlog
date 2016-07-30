@@ -10,18 +10,20 @@
     {% endblock %}
 </head>
 <body>
-	<div class="header-titles">
+	<div class="container">
+    <div class="header-titles">
 	  <h1>Multi User Blog</h1>
+    <div class="purple-line"></div>
 	  {% block hello %}{% endblock %}
     </div>
-    <hr>
-    <div class="container">
+    <div class="line"></div>
+  </div>
+  <div class="container">
       {% block content %}{% endblock %}
-    </div>
-    
-    <div id="footer">
-      <hr>
-      &copy; 2016, MultiUserBlog
-    </div>
+  </div>
+  <div id="footer">
+    <hr>
+    &copy; 2016, MultiUserBlog
+  </div>
 </body>
 </html>
