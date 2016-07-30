@@ -33,16 +33,16 @@
     Like
   </div>
 
-  <div class="button">
-    Comment
-  </div>
+{% if post.author == user %}
+    <a href="/blog/newpost/{{ post.key().id() }}">
+      <div class="button">Comment</div>
+    </a>
+{% endif %}
 
 {% if post.author == user %}
-  
     <a href="/blog/edit/{{ post.key().id() }}">
       <div class="button">Edit</div>
     </a>
-
 {% endif %}
   
   <hr>

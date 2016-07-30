@@ -64,6 +64,7 @@ class Posts(db.Model):
     author = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
     lastEdited = db.DateTimeProperty(auto_now_add=True)
+    isRoot = db.BooleanProperty()
     
 
 class PostsHierarchy(db.Model):
@@ -176,7 +177,7 @@ class SignUp(Handler):
                 hashtext=pw_hash.split(',')[0],
                 salt=pw_hash.split(',')[1],
                 email=email
-                )
+            )
             a.put()
             cookie = str(a.key().id()) + '|' + pw_hash.split(',')[0]
             self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
@@ -184,7 +185,6 @@ class SignUp(Handler):
 
 
 class SuccessPage(Handler):
-
     def get(self):
         cookie = self.request.cookies.get('login')
         if valid_cookie(cookie):
@@ -201,7 +201,7 @@ class SuccessPage(Handler):
 
 class MainPage(Handler):
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Posts ORDER BY created DESC limit 10")
+        posts = db.GqlQuery("SELECT * FROM Posts WHERE isRoot = True ORDER BY created DESC limit 10")
         user = get_user_from_cookie(self)
         self.render("post.html", posts=posts, user=user)
 
@@ -212,14 +212,12 @@ class SinglePost(Handler):
         user = get_user_from_cookie(self)
         self.render("post.html", posts=[Posts.get_by_id(int(product_id))], user=user, id=product_id)
 
-
-class NewPost(Handler):
-    #TODO: like, comment
-    def get(self):
+class NewRecord(Handler):
+    def get(self, product_id=0):
         user = get_user_from_cookie(self)
         self.render("newpost.html", user=user)
 
-    def post(self):
+    def post(self, product_id=0):
 
         user = get_user_from_cookie(self)
 
@@ -235,7 +233,11 @@ class NewPost(Handler):
         subject = self.request.get("subject")
         content = self.request.get("content") # TODO: preserve \n for better formating opportunities
 
-        parent = 0  # self.request.get("parent")
+        if int(product_id) == 0:
+            isRoot = True
+        else:
+            isRoot = False
+        parent = int(product_id)
 
         if not valid(subject):
             self.render(
@@ -248,23 +250,21 @@ class NewPost(Handler):
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
-            a = Posts(subject=subject, content=content, author=user, likes=0)
+            a = Posts(subject=subject, content=content, author=user, likes=0, isRoot=isRoot)
             a.put()
             b = PostsHierarchy(postID=parent, child=a.key().id())
             b.put()
-            self.redirect("/blog/" + str(a.key().id()))
+            self.redirect("/blog/" + str(a.key().id()))    
 
 
-class NewComment(Handler):
-    #TODO: like, comment
-    def get(self):
-        user = get_user_from_cookie(self)
-        self.render("newpost.html", user=user)
+class NewPost(NewRecord):
+    pass
 
-    def post(self):
-        pass #TODO
 
-       
+class NewComment(NewRecord):
+    pass
+
+
 class EditPost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
