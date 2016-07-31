@@ -11,6 +11,11 @@ p {
     color: #323225;
     font: 300 18px Lato;
     margin: 2px;
+    text-decoration: none;
+}
+
+a:hover { 
+    text-decoration: underline;
 }
 
 h1 {
@@ -77,8 +82,8 @@ img {
 .line {
     background-color: #cc4444;
     height: 1px;
-    margin-bottom: 12px;
-    margin-top: 12px;
+    margin-bottom: 6px;
+    margin-top: 6px;
     max-width: 1200px;
     width: 100%;
 }
@@ -111,6 +116,7 @@ img {
     font: 400 18px Lato;
     margin: 2px;
     width: 99%;
+
 }
 
 .post-subject {
@@ -118,10 +124,6 @@ img {
     font: 800 22px Lato;
     margin: 2px;
     letter-spacing: 2px;
-}
-
-.right {
-    align-items: right;
 }
 
 .w1 {
