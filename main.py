@@ -73,6 +73,7 @@ class Posts(db.Model):
     created = db.DateTimeProperty(auto_now_add=True)
     lastEdited = db.DateTimeProperty(auto_now_add=True)
     level = db.IntegerProperty()
+    rootID = db.IntegerProperty()
 
 
 class PostsHierarchy(db.Model):
@@ -255,14 +256,9 @@ class SinglePost(Handler):
 class NewRecord(Handler):
     def get(self, product_id=0):
         user = get_user_from_cookie(self)
-        self.render("newpost.html", user=user)
+        self.render("newpost.html", user=user, product_id=product_id)
 
     def post(self, product_id=0):
-
-        user = get_user_from_cookie(self)
-
-        err_subject = "Error in subject"
-        err_post = "Error in post"
 
         def valid(text):
             if len(text) > 0:
@@ -270,14 +266,25 @@ class NewRecord(Handler):
             else:
                 return False
 
-        subject = self.request.get("subject")
-        content = self.request.get("content") # TODO: preserve \n for better formating opportunities
+        user = get_user_from_cookie(self)
+
+        err_subject = "Error in subject"
+        err_post = "Error in post"
 
         if int(product_id) == 0:
+            subject = self.request.get("subject")
             level = 0
+            rootID = 0
         else:
+            subject = " "
             post = Posts.get_by_id(int(product_id))
             level = post.level + 1
+            if post.level == 1:
+                rootID = int(product_id)
+            else:
+                rootID = post.rootID
+        content = self.request.get("content")  # TODO: preserve \n for better formating opportunities
+
         parent = int(product_id)
 
         if not valid(subject):
@@ -291,11 +298,14 @@ class NewRecord(Handler):
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
-            a = Posts(subject=subject, content=content, author=user, likes=0, level=level)
+            a = Posts(subject=subject, content=content, author=user, likes=0, level=level, rootID=rootID)
             a.put()
             b = PostsHierarchy(postID=parent, child=a.key().id())
             b.put()
-            self.redirect("/blog/" + str(a.key().id()))
+            if product_id == 0:
+                self.redirect("/blog/" + str(a.key().id()))
+            else:
+                self.redirect("/blog/" + str(rootID))
 
 
 class NewPost(NewRecord):

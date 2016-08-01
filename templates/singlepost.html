@@ -57,9 +57,9 @@
 
 {% for post in comments %}
 
-<div class="post container" style="margin-left: calc({{ post.level }} * 10px);">
+<div class="post container" style="margin-left: calc({{ post.level }} * 15px);">
   
-  <a href="/blog/{{ post.key().id()}}" class="comment-subject">{{ post.subject }}</a>
+  <p class="comment-subject">{{ post.subject }}</p>
 
   <div class="comment-content">
     {{ post.content }}

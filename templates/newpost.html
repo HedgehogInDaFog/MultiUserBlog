@@ -8,13 +8,20 @@
 {% endblock %}
 
 {% block content %}
+{% if product_id == 0 %}
 <div class="container">
   <h2>New Post</h2>
 </div>  
+{% else %}
+<div class="container">
+  <h2>New Comment</h2>
+</div>  
+{% endif %}
 
 <div class="container">
   <form method="post">
     <table>
+      {% if product_id == 0 %}
       <tr>
         <td class="label">
           Post subject: 
@@ -26,10 +33,15 @@
           {{ err_subject }}
         </td>
       </tr>
+      {% endif %}
 
       <tr>
         <td class="label">
+          {% if product_id == 0 %}
           Post text: 
+          {% else %}
+          Comment:
+          {% endif %}
         </td>
         <td>
           <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
