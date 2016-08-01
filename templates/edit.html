@@ -9,15 +9,20 @@
 
 {% block content %}
 <div class="container">
-  <h2>Edit Post</h2>
+  {% if isComment == 0 %}
+    <h2>Edit Post</h2>
+  {% else %}
+    <h2>Edit Comment</h2>
+  {% endif %}
 </div>  
 
 <div class="container">
   <form method="post">
     <table>
+      {% if isComment == 0 %}
       <tr>
         <td class="label">
-          Post subject: 
+          Edit post subject: 
         </td>
         <td>
           <input type="text" name="subject" value="{{ subject }}">
@@ -26,10 +31,15 @@
           {{ err_subject }}
         </td>
       </tr>
+      {% endif %}
 
       <tr>
         <td class="label">
-          Post text: 
+          {% if isComment == 0 %}
+            Edit post text: 
+          {% else %}
+            Edit comment:
+          {% endif %} 
         </td>
         <td>
           <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>

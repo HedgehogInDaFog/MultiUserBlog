@@ -27,6 +27,12 @@ indexes:
   - name: postID
   - name: child
 
+- kind: PostsHierarchy
+  properties:
+  - name: postID
+  - name: created
+  - name: child
+
 - kind: Users
   properties:
   - name: Users.username

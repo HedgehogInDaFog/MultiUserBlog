@@ -6,6 +6,7 @@ import random
 import string
 import hashlib
 import datetime
+import time
 
 from google.appengine.ext import db
 
@@ -41,8 +42,11 @@ def get_user_from_cookie(self):
     if valid_cookie(cookie):
         user_id = cookie.split('|')[0]
         user = Users.get_by_id(int(user_id))
-        if user.username:
-            return str(user.username)
+        if user:
+            if user.username:
+                return str(user.username)
+            else:
+                return "Anonymous"
         else:
             return "Anonymous"
     else:
@@ -79,6 +83,7 @@ class Posts(db.Model):
 class PostsHierarchy(db.Model):
     postID = db.IntegerProperty()
     child = db.IntegerProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 class Likes(db.Model):
@@ -226,7 +231,7 @@ class SinglePost(Handler):
 
             def get_next_level(curr_id):
                 next_level = []
-                query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id)
+                query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id) + " ORDER BY created"
                 children_id = db.GqlQuery(query)
                 for i in range(children_id.count()):
                     tmp = children_id.get(offset=i).child
@@ -250,7 +255,7 @@ class SinglePost(Handler):
         user = get_user_from_cookie(self)
         comments = get_comments_tree(product_id)
 
-        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count = len(comments), comments=comments)
+        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count=len(comments), comments=comments)
 
 
 class NewRecord(Handler):
@@ -279,13 +284,11 @@ class NewRecord(Handler):
             subject = " "
             post = Posts.get_by_id(int(product_id))
             level = post.level + 1
-            if post.level == 1:
+            if post.level == 0:
                 rootID = int(product_id)
             else:
                 rootID = post.rootID
         content = self.request.get("content")  # TODO: preserve \n for better formating opportunities
-
-        parent = int(product_id)
 
         if not valid(subject):
             self.render(
@@ -293,16 +296,18 @@ class NewRecord(Handler):
                 subject=subject,
                 content=content,
                 err_subject=err_subject,
-                user=user
+                user=user,
+                product_id=product_id
             )
         elif not valid(content):
-            self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
+            self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id)
         else:
             a = Posts(subject=subject, content=content, author=user, likes=0, level=level, rootID=rootID)
             a.put()
-            b = PostsHierarchy(postID=parent, child=a.key().id())
+            b = PostsHierarchy(postID=int(product_id), child=a.key().id())
             b.put()
-            if product_id == 0:
+            time.sleep(0.2)
+            if int(product_id) == 0:
                 self.redirect("/blog/" + str(a.key().id()))
             else:
                 self.redirect("/blog/" + str(rootID))
@@ -320,12 +325,16 @@ class EditPost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
         if Posts.get_by_id(int(product_id)):
-            post = Posts.get_by_id(int(product_id)) # TODO exception
+            post = Posts.get_by_id(int(product_id))  # TODO exception
             content = post.content
             subject = post.subject
             author = post.author
+            if int(post.rootID) == 0:
+                isComment = 0
+            else:
+                isComment = 1
         if author == user:
-            self.render("edit.html", user=user, content=content, subject=subject)
+            self.render("edit.html", user=user, content=content, subject=subject, isComment=isComment, product_id=product_id)
         else:
             self.redirect("/blog/login")  # TODO strange logic
 
@@ -350,16 +359,24 @@ class EditPost(Handler):
         else:
             self.redirect("/blog/login")  # TODO: strange logic
 
-        if not valid(subject):
-            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user)
+        if int(post.rootID) == 0:
+            isComment = 0
+        else:
+            isComment = 1
+
+        if (isComment == 0) and (not valid(subject)):
+            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user, product_id=product_id, isComment=isComment)
         elif not valid(content):
-            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user)
+            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id, isComment=isComment)
         else:
             post.content = content
             post.subject = subject
             post.lastEdited = datetime.datetime.now()
             post.put()
-            self.redirect("/blog/" + str(product_id))
+            if int(post.rootID) != 0:
+                self.redirect("/blog/" + str(post.rootID))
+            else:
+                self.redirect("/blog/" + str(product_id))
 
 class Like(Handler):
     def get(self, product_id):
@@ -373,7 +390,10 @@ class Like(Handler):
             post.likes += 1
             post.put()
             a.put()
-        self.redirect("/blog/" + str(product_id))    
+        if post.rootID != 0:
+            self.redirect("/blog/" + str(post.rootID))
+        else:
+            self.redirect("/blog/" + str(product_id))
 
 
 app = webapp2.WSGIApplication([

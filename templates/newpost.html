@@ -8,15 +8,14 @@
 {% endblock %}
 
 {% block content %}
-{% if product_id == 0 %}
+
 <div class="container">
-  <h2>New Post</h2>
+  {% if product_id == 0 %}
+    <h2>New Post</h2>
+  {% else %}
+    <h2>New Comment</h2>
+  {% endif %}
 </div>  
-{% else %}
-<div class="container">
-  <h2>New Comment</h2>
-</div>  
-{% endif %}
 
 <div class="container">
   <form method="post">
