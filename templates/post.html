@@ -29,6 +29,8 @@
   Author:  {{ post.author }}
   </div>
 
+{% if user != "Anonymous" %}
+
   <a href="/blog/newpost/{{ post.key().id() }}">
     <div class="button">Comment</div>
   </a>
@@ -37,6 +39,8 @@
     <a href="/blog/edit/{{ post.key().id() }}">
       <div class="button">Edit</div>
     </a>
+{% endif %}
+
 {% endif %}
 
   <div class="line"></div>

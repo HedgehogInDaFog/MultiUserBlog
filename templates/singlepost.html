@@ -30,6 +30,7 @@
   <div class="post-attr">
   Number of Comments:  {{ comments_count }}
   </div>
+{% if user != "Anonymous" %}
 
 {% if post.author != user %}
   <a href="/blog/like/{{ id }}">
@@ -45,6 +46,8 @@
     <a href="/blog/edit/{{ id }}">
       <div class="button">Edit</div>
     </a>
+{% endif %}
+
 {% endif %}
 </div>
 
@@ -81,6 +84,8 @@
   Likes:  {{ post.likes }}
   </div>
 
+{% if user != "Anonymous" %}
+
 {% if post.author != user %}
   <a href="/blog/like/{{ post.key().id() }}">
     <div class="button">Like</div>
@@ -95,6 +100,8 @@
     <a href="/blog/edit/{{ post.key().id() }}">
       <div class="button">Edit</div>
     </a>
+{% endif %}
+
 {% endif %}
 
 </div>
