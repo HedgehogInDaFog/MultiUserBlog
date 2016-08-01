@@ -72,7 +72,7 @@ class Posts(db.Model):
     author = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
     lastEdited = db.DateTimeProperty(auto_now_add=True)
-    isRoot = db.BooleanProperty()
+    level = db.IntegerProperty()
 
 
 class PostsHierarchy(db.Model):
@@ -214,21 +214,42 @@ class SuccessPage(Handler):
 
 class MainPage(Handler):
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Posts WHERE isRoot = True ORDER BY created DESC limit 10")
+        posts = db.GqlQuery("SELECT * FROM Posts WHERE level = 0 ORDER BY created DESC limit 10")
         user = get_user_from_cookie(self)
         self.render("post.html", posts=posts, user=user)
 
 
 class SinglePost(Handler):
     def get(self, product_id):
+        def get_comments_tree(root_post_id):
+
+            def get_next_level(curr_id):
+                next_level = []
+                query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id)
+                children_id = db.GqlQuery(query)
+                for i in range(children_id.count()):
+                    tmp = children_id.get(offset=i).child
+                    next_level.append(Posts.get_by_id(int(tmp)))
+                return next_level
+
+            def dfs(v):
+                visited.append(v)
+                children = get_next_level(v)
+                for w in children:
+                    if w.key().id() not in visited:
+                        comments.append(w)
+                        dfs(w.key().id())
+
+            visited = []
+            comments = []
+            dfs(root_post_id)
+            return comments
+
+
         user = get_user_from_cookie(self)
-        query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(product_id)
-        children_id = db.GqlQuery(query)
-        comments = []
-        for i in range(children_id.count()):
-            tmp = children_id.get(offset=i).child
-            comments.append(Posts.get_by_id(int(tmp)))
-        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count = children_id.count(), comments=comments)
+        comments = get_comments_tree(product_id)
+
+        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count = len(comments), comments=comments)
 
 
 class NewRecord(Handler):
@@ -253,9 +274,10 @@ class NewRecord(Handler):
         content = self.request.get("content") # TODO: preserve \n for better formating opportunities
 
         if int(product_id) == 0:
-            isRoot = True
+            level = 0
         else:
-            isRoot = False
+            post = Posts.get_by_id(int(product_id))
+            level = post.level + 1
         parent = int(product_id)
 
         if not valid(subject):
@@ -269,11 +291,11 @@ class NewRecord(Handler):
         elif not valid(content):
             self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user)
         else:
-            a = Posts(subject=subject, content=content, author=user, likes=0, isRoot=isRoot)
+            a = Posts(subject=subject, content=content, author=user, likes=0, level=level)
             a.put()
             b = PostsHierarchy(postID=parent, child=a.key().id())
             b.put()
-            self.redirect("/blog/" + str(a.key().id()))    
+            self.redirect("/blog/" + str(a.key().id()))
 
 
 class NewPost(NewRecord):

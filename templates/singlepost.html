@@ -1,8 +1,7 @@
 {% extends "blog.html"%}
 
 {% block postcontent %}
-<a href="/blog">Go to the main page</a>
-<br><br>
+<a href="/blog">Main page</a> <p> > </p> <a href="/blog/{{ id }}">{{ post.subject }}</a>
 
 <div class="post container">
   
@@ -47,9 +46,9 @@
       <div class="button">Edit</div>
     </a>
 {% endif %}
-  <hr>  
 </div>
 
+<div class="line"></div>
 <div class="post container">
   <br>  
   <h3>Comments:</h3>
@@ -58,11 +57,11 @@
 
 {% for post in comments %}
 
-<div class="post container">
+<div class="post container" style="margin-left: calc({{ post.level }} * 10px);">
   
-  <a href="/blog/{{ post.key().id()}}" class="post-subject">{{ post.subject }}</a>
+  <a href="/blog/{{ post.key().id()}}" class="comment-subject">{{ post.subject }}</a>
 
-  <div class="post-content">
+  <div class="comment-content">
     {{ post.content }}
   </div>
 
@@ -98,7 +97,6 @@
     </a>
 {% endif %}
 
-  <hr>
 </div>
 
 {% endfor %}

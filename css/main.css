@@ -51,11 +51,32 @@ img {
     text-align: center; 
 }
 
+.comment-attr {
+    color: #323225;
+    font: 300 14px Lato;
+    margin: 2px;
+    width: 100%;
+}
+
+.comment-content {
+    color: #323225;
+    font: 400 16px Lato;
+    margin: 2px;
+    width: 99%;
+}
+
+.comment-subject {
+    color: #323225;
+    font: 800 18px Lato;
+    margin: 2px;
+    letter-spacing: 1.5px;
+}
+
 .container {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
+    align-items: left;
+    justify-content: left;
     margin-left: auto;
     margin-right: auto;
     max-width: 1200px;

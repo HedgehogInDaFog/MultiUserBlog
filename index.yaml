@@ -16,6 +16,12 @@ indexes:
   - name: created
     direction: desc
 
+- kind: Posts
+  properties:
+  - name: level
+  - name: created
+    direction: desc
+
 - kind: PostsHierarchy
   properties:
   - name: postID
