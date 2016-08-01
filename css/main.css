@@ -15,7 +15,7 @@ p {
 }
 
 a:hover { 
-    text-decoration: underline;
+    color: #aa2222;
 }
 
 h1 {
@@ -51,10 +51,15 @@ img {
     text-align: center; 
 }
 
+.button:hover {
+    background-color: #aa2222;
+    color: white;
+}
+
 .comment-attr {
     color: #323225;
-    font: 300 14px Lato;
-    margin: 2px;
+    font: 300 12px Lato;
+    margin: 1px;
     width: 100%;
 }
 
@@ -127,14 +132,14 @@ img {
 
 .post-attr {
     color: #323225;
-    font: 300 16px Lato;
-    margin: 2px;
+    font: 300 14px Lato;
+    margin: 1px;
     width: 100%;
 }
 
 .post-content {
     color: #323225;
-    font: 400 18px Lato;
+    font: 400 20px Lato;
     margin: 2px;
     width: 99%;
 
