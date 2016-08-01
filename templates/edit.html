@@ -8,6 +8,17 @@
 {% endblock %}
 
 {% block content %}
+
+{% if isComment == 0 %}
+<a href="/blog">Main page</a> <p> > </p> 
+<a href="/blog/{{ product_id }}">{{ subject }}</a> <p> > </p> 
+<a href="/blog/edit/{{ product_id }}">edit</a>
+{% else %}
+<a href="/blog">Main page</a> <p> > </p> 
+<a href="/blog/{{ rootID }}">Back to post</a> <p> > </p>
+<a href="/blog/edit/{{ product_id }}">edit comment</a>
+{% endif %}
+
 <div class="container">
   {% if isComment == 0 %}
     <h2>Edit Post</h2>
@@ -52,8 +63,5 @@
     <input type="submit" value="Publish">
   </form>
 </div>  
-<div class="container">
-  <a href="/blog">Go to main page</a>
-  <br><br>
-</div>  
+
 {% endblock %}

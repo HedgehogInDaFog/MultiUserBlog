@@ -334,7 +334,7 @@ class EditPost(Handler):
             else:
                 isComment = 1
         if author == user:
-            self.render("edit.html", user=user, content=content, subject=subject, isComment=isComment, product_id=product_id)
+            self.render("edit.html", user=user, content=content, subject=subject, isComment=isComment, product_id=product_id, rootID=post.rootID)
         else:
             self.redirect("/blog/login")  # TODO strange logic
 
@@ -365,9 +365,9 @@ class EditPost(Handler):
             isComment = 1
 
         if (isComment == 0) and (not valid(subject)):
-            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user, product_id=product_id, isComment=isComment)
+            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user, product_id=product_id, isComment=isComment, rootID=post.rootID)
         elif not valid(content):
-            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id, isComment=isComment)
+            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id, isComment=isComment, rootID=post.rootID)
         else:
             post.content = content
             post.subject = subject

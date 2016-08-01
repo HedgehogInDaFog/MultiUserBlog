@@ -34,7 +34,7 @@
 
 {% if post.author != user %}
   <a href="/blog/like/{{ id }}">
-    <div class="button">Like</div>
+    <div class="button">❤ Like</div>
   </a>
 {% endif %}
 
@@ -68,19 +68,19 @@
     {{ post.content }}
   </div>
 
-  <div class="post-attr">
+  <div class="comment-attr">
   Created:  {{ post.created }}
   </div>
 
-  <div class="post-attr">
+  <div class="comment-attr">
   Last edited:  {{ post.lastEdited }}
   </div>
 
-  <div class="post-attr">
+  <div class="comment-attr">
   Author:  {{ post.author }}
   </div>
 
-  <div class="post-attr">
+  <div class="comment-attr">
   Likes:  {{ post.likes }}
   </div>
 
@@ -88,7 +88,7 @@
 
 {% if post.author != user %}
   <a href="/blog/like/{{ post.key().id() }}">
-    <div class="button">Like</div>
+    <div class="button">❤ Like</div>
   </a>
 {% endif %}
 

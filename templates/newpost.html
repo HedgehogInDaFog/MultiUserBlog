@@ -9,6 +9,14 @@
 
 {% block content %}
 
+<a href="/blog">Main page</a> <p> > </p> 
+  {% if product_id == 0 %}
+<a href="/blog/newpost">New зost</a>
+  {% else %}
+<a href="/blog/{{ product_id }}">Back to post</a> <p> > </p>
+<a href="/blog/newpost">New comment</a> 
+    {% endif %}
+
 <div class="container">
   {% if product_id == 0 %}
     <h2>New Post</h2>
@@ -50,11 +58,7 @@
         </td>
       </tr>
     </table>
-    <input type="submit" value="Publish">
+    <input type="submit" value="Publish" class="button">
   </form>
-</div>  
-<div class="container">
-  <a href="/blog">Go to main page</a>
-  <br><br>
 </div>  
 {% endblock %}
