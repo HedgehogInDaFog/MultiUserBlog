@@ -433,7 +433,7 @@ class DeletePost(Handler):
                 i.delete()
 
             post.delete()
-
+        time.sleep(0.1)
         self.redirect(redirect_address)
 
 
