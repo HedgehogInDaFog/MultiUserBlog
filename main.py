@@ -68,8 +68,9 @@ def get_comments_tree(root_post_id):
         query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id) + " ORDER BY created"
         children_id = db.GqlQuery(query)
         for i in range(children_id.count()):
-            tmp = children_id.get(offset=i).child
-            if Posts.get_by_id(int(tmp)):  
+            if children_id.get(offset=i):
+                tmp = children_id.get(offset=i).child
+            if Posts.get_by_id(int(tmp)):
                 next_level.append(Posts.get_by_id(int(tmp)))
         return next_level
 
@@ -85,6 +86,7 @@ def get_comments_tree(root_post_id):
     comments = []
     dfs(root_post_id)
     return comments
+
 
 class Users(db.Model):
     username = db.StringProperty()
@@ -402,6 +404,11 @@ class DeletePost(Handler):
         user = get_user_from_cookie(self)
         post = Posts.get_by_id(int(product_id))
 
+        redirect_address = "/blog"
+        if post.rootID != 0:
+            redirect_address += "/"
+            redirect_address += str(post.rootID)
+
         if post.author == user:
 
             query = "SELECT * FROM PostsHierarchy WHERE postID = " + str(product_id)
@@ -422,7 +429,7 @@ class DeletePost(Handler):
 
             post.delete()
 
-        self.redirect("/blog")
+        self.redirect(redirect_address)
 
 
 app = webapp2.WSGIApplication([
