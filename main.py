@@ -61,6 +61,31 @@ def get_user_id_from_cookie(self):
         return None
 
 
+def get_comments_tree(root_post_id):
+
+    def get_next_level(curr_id):
+        next_level = []
+        query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id) + " ORDER BY created"
+        children_id = db.GqlQuery(query)
+        for i in range(children_id.count()):
+            tmp = children_id.get(offset=i).child
+            if Posts.get_by_id(int(tmp)):  
+                next_level.append(Posts.get_by_id(int(tmp)))
+        return next_level
+
+    def dfs(v):
+        visited.append(v)
+        children = get_next_level(v)
+        for w in children:
+            if w.key().id() not in visited:
+                comments.append(w)
+                dfs(w.key().id())
+
+    visited = []
+    comments = []
+    dfs(root_post_id)
+    return comments
+
 class Users(db.Model):
     username = db.StringProperty()
     hashtext = db.StringProperty()
@@ -227,30 +252,6 @@ class MainPage(Handler):
 
 class SinglePost(Handler):
     def get(self, product_id):
-        def get_comments_tree(root_post_id):
-
-            def get_next_level(curr_id):
-                next_level = []
-                query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id) + " ORDER BY created"
-                children_id = db.GqlQuery(query)
-                for i in range(children_id.count()):
-                    tmp = children_id.get(offset=i).child
-                    next_level.append(Posts.get_by_id(int(tmp)))
-                return next_level
-
-            def dfs(v):
-                visited.append(v)
-                children = get_next_level(v)
-                for w in children:
-                    if w.key().id() not in visited:
-                        comments.append(w)
-                        dfs(w.key().id())
-
-            visited = []
-            comments = []
-            dfs(root_post_id)
-            return comments
-
 
         user = get_user_from_cookie(self)
         comments = get_comments_tree(product_id)
@@ -396,6 +397,34 @@ class Like(Handler):
             self.redirect("/blog/" + str(product_id))
 
 
+class DeletePost(Handler):
+    def get(self, product_id):
+        user = get_user_from_cookie(self)
+        post = Posts.get_by_id(int(product_id))
+
+        if post.author == user:
+
+            query = "SELECT * FROM PostsHierarchy WHERE postID = " + str(product_id)
+            children = db.GqlQuery(query)
+            for i in range(children.count()):
+                tmp = children.get(offset=i)
+                tmp.delete()
+
+            query = "SELECT * FROM Likes WHERE postID = " + str(product_id)
+            like = db.GqlQuery(query)
+            for i in range(like.count()):
+                tmp = like.get(offset=i)
+                tmp.delete()
+
+            comments = get_comments_tree(product_id)
+            for i in comments:
+                i.delete()
+
+            post.delete()
+
+        self.redirect("/blog")
+
+
 app = webapp2.WSGIApplication([
     ('/blog/signup', SignUp),
     ('/blog/welcome', SuccessPage),
@@ -405,6 +434,7 @@ app = webapp2.WSGIApplication([
     ('/blog/newpost', NewPost),
     (r'/blog/newpost/(\d+)', NewComment),
     (r'/blog/edit/(\d+)', EditPost),
+    (r'/blog/delete/(\d+)', DeletePost),
     (r'/blog/(\d+)', SinglePost),
     (r'/blog/like/(\d+)', Like)
 ], debug=True)
