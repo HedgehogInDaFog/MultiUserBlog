@@ -1,22 +1,16 @@
-{% extends "base.html"%}
-
-{% block title %}New Post{% endblock %}
-
-{% block hello %} 
-<h3>You logged in as {{ user }} </h3> 
-<a href="/blog/logout">Logout</a>
-{% endblock %}
+{% extends "blog.html"%}
 
 {% block content %}
 
 <a href="/blog">Main page</a> <p> > </p> 
   {% if product_id == 0 %}
-<a href="/blog/newpost">New зost</a>
+<a href="/blog/newpost">New post</a>
   {% else %}
 <a href="/blog/{{ product_id }}">Back to post</a> <p> > </p>
 <a href="/blog/newpost">New comment</a> 
     {% endif %}
 
+{% if user != 'Anonymous' %}
 <div class="container">
   {% if product_id == 0 %}
     <h2>New Post</h2>
@@ -61,4 +55,9 @@
     <input type="submit" value="Publish" class="button">
   </form>
 </div>  
+{% else %}
+<div class="container">
+  <p>Please log in to add new post</p>
+</div>
+{% endif %}
 {% endblock %}

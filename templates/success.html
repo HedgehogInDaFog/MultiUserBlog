@@ -3,14 +3,15 @@
 {% block title %}Welcome{% endblock %}
 
 {% block hello %} 
-<h3>You logged in as {{ username }} </h3> 
-<a href="/blog/logout">Logout</a>
+  <h3>You logged in as {{ username }} </h3> 
+  <a href="/blog/logout">Logout</a>
 {% endblock %}
 
 {% block content %}
-<a href="/blog">Main page</a> <p> > </p>
-<a href="/blog/welcome">Welcome page</a> 
-<div class="container">
-  <h2>Welcome, {{ username }}!</h2>
-</div>
+  <a href="/blog">Main page</a> 
+  <p> &gt </p>
+  <a href="/blog/welcome">Welcome page</a> 
+  <div class="container">
+    <h2>Welcome, {{ username }}!</h2>
+  </div>
 {% endblock %}
