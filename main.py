@@ -15,6 +15,8 @@ PASS_RE = re.compile(r"^.{3,20}$")
 MAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 COOKIE_RE = re.compile(r'.+=;\s*Path=/')
 
+POSTS_PER_PAGE = 10
+
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
@@ -244,12 +246,15 @@ class SuccessPage(Handler):
             self.redirect("/blog/signup")
 
 
-
 class MainPage(Handler):
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Posts WHERE level = 0 ORDER BY created DESC limit 10")
+        page = self.request.get('page')
+        if not page:
+            page = 1
+        offset = (int(page) - 1) * POSTS_PER_PAGE
+        posts = db.GqlQuery("SELECT * FROM Posts WHERE level = 0 ORDER BY created DESC limit %s OFFSET %s" % (POSTS_PER_PAGE, offset))
         user = get_user_from_cookie(self)
-        self.render("post.html", posts=posts, user=user)
+        self.render("post.html", posts=posts, user=user, page=int(page))
 
 
 class SinglePost(Handler):

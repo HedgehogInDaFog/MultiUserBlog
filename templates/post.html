@@ -51,4 +51,19 @@
 </div>
 
 {% endfor %}
+
+
+<div class="container-right">
+  {% if page > 1 %}
+    <a href="/blog?page={{ page - 1 }}">
+      <div class="small-button"> &lt </div>
+    </a>
+  {% endif %}
+    <p>Page: {{ page }}</p>
+    <a href="/blog?page={{ page + 1 }}">
+      <div class="small-button"> &gt </div>
+    </a>
+</div>
+
+
 {% endblock %}
