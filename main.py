@@ -1,13 +1,12 @@
+import datetime
+import hashlib
 import jinja2
 import os
-import webapp2
-import re
-import random
 import string
-import hashlib
-import datetime
+import random
+import re
 import time
-
+import webapp2
 from google.appengine.ext import db
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -18,14 +17,29 @@ COOKIE_RE = re.compile(r'.+=;\s*Path=/')
 POSTS_PER_PAGE = 10
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+                               autoescape=True)
 
 
-def make_salt():
-    return ''.join(random.choice(string.letters) for x in xrange(5))
+def valid_username(username):
+    return USER_RE.match(username)
+
+
+def valid_password(password):
+    return PASS_RE.match(password)
+
+
+def valid_mail(mail):
+    if mail == "":
+        return True
+    return MAIL_RE.match(mail)
 
 
 def make_pw_hash(name, pw):
+
+    def make_salt():
+        return ''.join(random.choice(string.letters) for x in xrange(5))
+
     salt = make_salt()
     hashtext = hashlib.sha256(name + pw + salt).hexdigest()
     return '%s,%s' % (hashtext, salt)
@@ -36,7 +50,7 @@ def valid_pw(name, pw, hashtext, salt):
 
 
 def valid_cookie(cookie):
-    return cookie and len(cookie)  # COOKIE_RE.match(cookie)
+    return cookie and len(cookie)  # TODO: COOKIE_RE.match(cookie)
 
 
 def get_user_from_cookie(self):
@@ -44,30 +58,27 @@ def get_user_from_cookie(self):
     if valid_cookie(cookie):
         user_id = cookie.split('|')[0]
         user = Users.get_by_id(int(user_id))
-        if user:
+        if user:  # TO THINK
             if user.username:
                 return str(user.username)
-            else:
-                return "Anonymous"
-        else:
-            return "Anonymous"
-    else:
-        return "Anonymous"
+    return "Anonymous"
 
 
 def get_user_id_from_cookie(self):
     cookie = self.request.cookies.get('login')
     if valid_cookie(cookie):
         return int(cookie.split('|')[0])
-    else:
-        return None
+    return None
 
 
 def get_comments_tree(root_post_id):
 
     def get_next_level(curr_id):
         next_level = []
-        query = "SELECT child FROM PostsHierarchy WHERE postID = " + str(curr_id) + " ORDER BY created"
+        query = '''SELECT child
+                    FROM PostsHierarchy
+                    WHERE postID = %s
+                    ORDER BY created''' % str(curr_id)
         children_id = db.GqlQuery(query)
         for i in range(children_id.count()):
             if children_id.get(offset=i):
@@ -95,7 +106,6 @@ class Users(db.Model):
     hashtext = db.StringProperty()
     salt = db.StringProperty()
     email = db.StringProperty()
-    lastVisit = db.DateTimeProperty(auto_now_add=True)
 
 
 class Posts(db.Model):
@@ -137,12 +147,6 @@ class Login(Handler):
         self.render("login.html")
 
     def post(self):
-        def valid_username(username):
-            return USER_RE.match(username)
-
-        def valid_password(password):
-            return PASS_RE.match(password)
-
         err_login = "Invalid username"
         err_password = "Invalid password"
         incorrect_login = "No such user. Try to sign up"
@@ -152,20 +156,31 @@ class Login(Handler):
         password = self.request.get("password")
 
         if not valid_username(username):
-            self.render("login.html", username=username, err_login=err_login)
+            self.render("login.html",
+                        username=username,
+                        err_login=err_login)
+
         elif not valid_password(password):
-            self.render("login.html", username=username, err_password=err_password)
+            self.render("login.html",
+                        username=username,
+                        err_password=err_password)
         else:
-            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
+            query = '''SELECT * FROM Users
+                        WHERE username = \'%s\' ''' % str(username)
             a = db.GqlQuery(query)
-            if not a.get():  # TODO is correct?
-                self.render("login.html", username=username, err_login=incorrect_login)
+
+            if not a.get():  # TO THINK
+                self.render("login.html",
+                            username=username,
+                            err_login=incorrect_login)
             elif valid_pw(username, password, a.get().hashtext, a.get().salt):
                 cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)
                 self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
                 self.redirect("/blog/welcome")
             else:
-                self.render("login.html", username=username, err_password=incorrect_password)
+                self.render("login.html",
+                            username=username,
+                            err_password=incorrect_password)
 
 
 class Logout(Handler):
@@ -174,24 +189,17 @@ class Logout(Handler):
         self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % '')
         self.redirect("/blog/signup")
 
+
 class SignUp(Handler):
+
     def get(self):
         self.render("signup.html")
 
     def post(self):
-        def valid_username(username):
-            return USER_RE.match(username)
-
-        def valid_password(password):
-            return PASS_RE.match(password)
-
-        def valid_mail(mail):
-            if mail == "":
-                return True
-            return MAIL_RE.match(mail)
 
         def existing_username(username):
-            query = "SELECT * FROM Users WHERE username = \'" + str(username) + "\'"
+            query = '''SELECT * FROM Users
+                        WHERE username = \'%s\'''' % str(username)
             a = db.GqlQuery(query)
             if not a.get():
                 return False
@@ -209,23 +217,41 @@ class SignUp(Handler):
         email = self.request.get("email")
 
         if not valid_username(username):
-            self.render("signup.html", username=username, email=email, err_login=err_login)
+            self.render("signup.html",
+                        username=username,
+                        email=email,
+                        err_login=err_login)
+
         elif existing_username(username):
-            self.render("signup.html", username=username, email=email, err_login=err_login_exist)
+            self.render("signup.html",
+                        username=username,
+                        email=email,
+                        err_login=err_login_exist)
+
         elif not valid_password(password):
-            self.render("signup.html", username=username, email=email, err_password=err_password)
+            self.render("signup.html",
+                        username=username,
+                        email=email,
+                        err_password=err_password)
+
         elif not valid_mail(email):
-            self.render("signup.html", username=username, email=email, err_email=err_email)
+            self.render("signup.html",
+                        username=username,
+                        email=email,
+                        err_email=err_email)
+
         elif password != verify:
-            self.render("signup.html", username=username, email=email, err_verify=err_verify)
+            self.render("signup.html",
+                        username=username,
+                        email=email,
+                        err_verify=err_verify)
         else:
             pw_hash = make_pw_hash(username, password)
             a = Users(
                 username=username,
                 hashtext=pw_hash.split(',')[0],
                 salt=pw_hash.split(',')[1],
-                email=email
-            )
+                email=email)
             a.put()
             cookie = str(a.key().id()) + '|' + pw_hash.split(',')[0]
             self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
@@ -239,7 +265,8 @@ class SuccessPage(Handler):
             user_id = cookie.split('|')[0]
             user = Users.get_by_id(int(user_id))
             if user.username:
-                self.render("success.html", username=user.username)
+                self.render("success.html",
+                            username=user.username)
             else:
                 self.redirect("/blog/signup")
         else:
@@ -247,14 +274,24 @@ class SuccessPage(Handler):
 
 
 class MainPage(Handler):
+
     def get(self):
+        user = get_user_from_cookie(self)
         page = self.request.get('page')
         if not page:
             page = 1
         offset = (int(page) - 1) * POSTS_PER_PAGE
-        posts = db.GqlQuery("SELECT * FROM Posts WHERE level = 0 ORDER BY created DESC limit %s OFFSET %s" % (POSTS_PER_PAGE, offset))
-        user = get_user_from_cookie(self)
-        self.render("post.html", posts=posts, user=user, page=int(page))
+
+        query = '''SELECT * FROM Posts
+                    WHERE level = 0
+                    ORDER BY created DESC
+                    LIMIT %s OFFSET %s ''' % (POSTS_PER_PAGE, offset)
+        posts = db.GqlQuery(query)
+
+        self.render("main.html",
+                    posts=posts,
+                    user=user,
+                    page=int(page))
 
 
 class SinglePost(Handler):
@@ -263,13 +300,22 @@ class SinglePost(Handler):
         user = get_user_from_cookie(self)
         comments = get_comments_tree(product_id)
 
-        self.render("singlepost.html", post=Posts.get_by_id(int(product_id)), user=user, id=product_id, comments_count=len(comments), comments=comments)
+        self.render("singlepost.html",
+                    post=Posts.get_by_id(int(product_id)),
+                    user=user,
+                    id=product_id,
+                    comments_count=len(comments),
+                    comments=comments)
 
 
 class NewRecord(Handler):
+
     def get(self, product_id=0):
         user = get_user_from_cookie(self)
-        self.render("newpost.html", user=user, product_id=product_id)
+
+        self.render("newpost.html",
+                    user=user,
+                    product_id=product_id)
 
     def post(self, product_id=0):
 
@@ -307,13 +353,27 @@ class NewRecord(Handler):
                 user=user,
                 product_id=product_id
             )
+
         elif not valid(content):
-            self.render("newpost.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id)
+            self.render("newpost.html",
+                        subject=subject,
+                        content=content,
+                        err_post=err_post,
+                        user=user,
+                        product_id=product_id)
+
         else:
-            a = Posts(subject=subject, content=content, author=user, likes=0, level=level, rootID=rootID)
+            a = Posts(subject=subject,
+                      content=content,
+                      author=user,
+                      likes=0,
+                      level=level,
+                      rootID=rootID)
             a.put()
+
             b = PostsHierarchy(postID=int(product_id), child=a.key().id())
             b.put()
+
             time.sleep(0.2)
             if int(product_id) == 0:
                 self.redirect("/blog/" + str(a.key().id()))
@@ -330,19 +390,23 @@ class NewComment(NewRecord):
 
 
 class EditPost(Handler):
+
     def get(self, product_id):
         user = get_user_from_cookie(self)
         if Posts.get_by_id(int(product_id)):
             post = Posts.get_by_id(int(product_id))  # TODO exception
-            content = post.content
-            subject = post.subject
-            author = post.author
             if int(post.rootID) == 0:
                 isComment = 0
             else:
                 isComment = 1
-        if author == user:
-            self.render("edit.html", user=user, content=content, subject=subject, isComment=isComment, product_id=product_id, rootID=post.rootID)
+        if post.author == user:
+            self.render("edit.html",
+                        user=user,
+                        content=post.content,
+                        subject=post.subject,
+                        isComment=isComment,
+                        product_id=product_id,
+                        rootID=post.rootID)
         else:
             self.redirect("/blog/login")  # TODO strange logic
 
@@ -373,9 +437,25 @@ class EditPost(Handler):
             isComment = 1
 
         if (isComment == 0) and (not valid(subject)):
-            self.render("edit.html", subject=subject, content=content, err_subject=err_subject, user=user, product_id=product_id, isComment=isComment, rootID=post.rootID)
+            self.render("edit.html",
+                        subject=subject,
+                        content=content,
+                        err_subject=err_subject,
+                        user=user,
+                        product_id=product_id,
+                        isComment=isComment,
+                        rootID=post.rootID)
+
         elif not valid(content):
-            self.render("edit.html", subject=subject, content=content, err_post=err_post, user=user, product_id=product_id, isComment=isComment, rootID=post.rootID)
+            self.render("edit.html",
+                        subject=subject,
+                        content=content,
+                        err_post=err_post,
+                        user=user,
+                        product_id=product_id,
+                        isComment=isComment,
+                        rootID=post.rootID)
+
         else:
             post.content = content
             post.subject = subject
@@ -386,11 +466,15 @@ class EditPost(Handler):
             else:
                 self.redirect("/blog/" + str(product_id))
 
+
 class Like(Handler):
+
     def get(self, product_id):
         userID = get_user_id_from_cookie(self)
         user = get_user_from_cookie(self)
-        query = "SELECT * FROM Likes WHERE postID = " + str(product_id) + " AND userID = " + str(userID)
+        query = '''SELECT * FROM Likes
+                    WHERE postID = %s
+                    AND userID = %s''' % (str(product_id), str(userID))
         likes = db.GqlQuery(query)
         post = Posts.get_by_id(int(product_id))
         if likes.count() == 0 and post.author != user:
@@ -409,20 +493,21 @@ class DeletePost(Handler):
         user = get_user_from_cookie(self)
         post = Posts.get_by_id(int(product_id))
 
-        redirect_address = "/blog"
+        redirect_address = "/blog/"
         if post.rootID != 0:
-            redirect_address += "/"
             redirect_address += str(post.rootID)
 
         if post.author == user:
 
-            query = "SELECT * FROM PostsHierarchy WHERE postID = " + str(product_id)
+            query = '''SELECT * FROM PostsHierarchy
+                        WHERE postID = %s''' % str(product_id)
             children = db.GqlQuery(query)
             for i in range(children.count()):
                 tmp = children.get(offset=i)
                 tmp.delete()
 
-            query = "SELECT * FROM Likes WHERE postID = " + str(product_id)
+            query = '''SELECT * FROM Likes
+                        WHERE postID = %s''' % str(product_id)
             like = db.GqlQuery(query)
             for i in range(like.count()):
                 tmp = like.get(offset=i)
@@ -433,20 +518,22 @@ class DeletePost(Handler):
                 i.delete()
 
             post.delete()
+
         time.sleep(0.1)
         self.redirect(redirect_address)
 
 
 app = webapp2.WSGIApplication([
-    ('/blog/signup', SignUp),
-    ('/blog/welcome', SuccessPage),
+    ('/blog', MainPage),
+    ('/blog/', MainPage),
     ('/blog/login', Login),
     ('/blog/logout', Logout),
-    ('/blog', MainPage),
-    ('/blog/newpost', NewPost),
-    (r'/blog/newpost/(\d+)', NewComment),
-    (r'/blog/edit/(\d+)', EditPost),
-    (r'/blog/delete/(\d+)', DeletePost),
+    ('/blog/signup', SignUp),
+    ('/blog/welcome', SuccessPage),
     (r'/blog/(\d+)', SinglePost),
-    (r'/blog/like/(\d+)', Like)
+    (r'/blog/delete/(\d+)', DeletePost),
+    (r'/blog/edit/(\d+)', EditPost),
+    (r'/blog/like/(\d+)', Like),
+    ('/blog/newpost', NewPost),
+    (r'/blog/newpost/(\d+)', NewComment)
 ], debug=True)
