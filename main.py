@@ -78,6 +78,12 @@ def get_user_id_from_cookie(self):
 def get_comments_tree(root_post_id):
 
     def get_next_level(curr_id):
+        """
+        Find immediate children of a post or comment
+
+        Returns:
+            a list of immediate children
+        """
         next_level = []
         query = '''SELECT child
                     FROM PostsHierarchy
@@ -113,6 +119,15 @@ class Users(db.Model):
 
 
 class Posts(db.Model):
+    '''
+    Non obvious parameters:
+    likes - number of likes for post/comment
+    level - level in the hierarchy of posts. i.e. level=0 for post,
+        level=1 for a comment to a post, level=2 for a comment to a
+        level-1 comment, etc.
+    rootID - for posts rootID=0, for comments rootID = ID of the post.
+    So all level comments for the post will have same rootID
+    '''
     subject = db.StringProperty()
     content = db.TextProperty()
     likes = db.IntegerProperty()
@@ -173,7 +188,7 @@ class Login(Handler):
                         WHERE username = \'%s\' ''' % str(username)
             a = db.GqlQuery(query)
 
-            if not a.get():
+            if not a.get():  # if there is no user with such login
                 self.render("login.html",
                             username=username,
                             err_login=incorrect_login)
@@ -283,7 +298,7 @@ class MainPage(Handler):
 
     def get(self):
         user = get_user_from_cookie(self)
-        page = self.request.get('page')
+        page = self.request.get('page')  # get current page from the URL
         if not page:
             page = 1
         offset = (int(page) - 1) * POSTS_PER_PAGE
@@ -315,6 +330,10 @@ class SinglePost(Handler):
 
 
 class NewRecord(Handler):
+    """
+    Parent class for "NewPost" and "NewComment" classes
+    In case product_id=0, it is a New post. Else, it is a comment
+    """
 
     def get(self, product_id=0):
         user = get_user_from_cookie(self)
@@ -337,16 +356,23 @@ class NewRecord(Handler):
         err_post = "Error in post"
 
         if int(product_id) == 0:
+            #in case we are adding new post (not comment),
+            #it'll have subject and it'll be root (be on the level 0)
             subject = self.request.get("subject")
             level = 0
             rootID = 0
         else:
+            #in case we are adding comment, we won't have subject and
+            #it's level and rootID will depend on its parents up to root
             subject = " "
             post_object = Posts.get_by_id(int(product_id))
             level = post_object.level + 1
-            if post_object.level == 0:
+            if level == 1:
+                #rootID is ID of its parent for level 1 comments
                 rootID = int(product_id)
             else:
+                #for level 2,3,... comments, it has rootID the same
+                #as root ID of its parent
                 rootID = post_object.rootID
         content = self.request.get("content")
 
@@ -380,6 +406,8 @@ class NewRecord(Handler):
             b = PostsHierarchy(postID=int(product_id), child=a.key().id())
             b.put()
 
+            # without a little sleep we won't see result
+            #immediatly after redirect
             time.sleep(0.2)
             if int(product_id) == 0:
                 self.redirect("/blog/" + str(a.key().id()))
@@ -402,9 +430,11 @@ class EditPost(Handler):
         user = get_user_from_cookie(self)
         post_object = Posts.get_by_id(int(product_id))
 
+        # in case somebody trying to edit unexisting post
         if post_object is None:
             self.redirect("/blog")
 
+        #check if we edit a comment or a post
         if int(post_object.rootID) == 0:
             is_comment = 0
         else:
@@ -488,6 +518,8 @@ class Like(Handler):
                     AND userID = %s''' % (str(product_id), str(userID))
         likes = db.GqlQuery(query)
         post_object = Posts.get_by_id(int(product_id))
+
+        #check, if this user has already liked post and isn't he an author
         if likes.count() == 0 and post_object.author != user:
             a = Likes(postID=int(product_id), userID=userID)
             post_object.likes += 1
@@ -504,12 +536,16 @@ class DeletePost(Handler):
         user = get_user_from_cookie(self)
         post_object = Posts.get_by_id(int(product_id))
 
+        #in case we deleting a post, we want to redirect to the main page
         redirect_address = "/blog/"
         if post_object.rootID != 0:
+            #in case we delete a comment, we want to redirect to a post, 
+            #whose comments were deleted
             redirect_address += str(post_object.rootID)
 
         if post_object.author == user:
 
+            #delete all hierarchy entities
             query = '''SELECT * FROM PostsHierarchy
                         WHERE postID = %s''' % str(product_id)
             children = db.GqlQuery(query)
@@ -517,6 +553,7 @@ class DeletePost(Handler):
                 tmp = children.get(offset=i)
                 tmp.delete()
 
+            #delete all "likes"
             query = '''SELECT * FROM Likes
                         WHERE postID = %s''' % str(product_id)
             like = db.GqlQuery(query)
@@ -524,12 +561,16 @@ class DeletePost(Handler):
                 tmp = like.get(offset=i)
                 tmp.delete()
 
+            #delete all comments lower (all children of the post/comments)
             comments = get_comments_tree(product_id)
             for i in comments:
                 i.delete()
 
+            #delete post/comment
             post_object.delete()
 
+        # without a little sleep we won't see result
+        #immediatly after redirect
         time.sleep(0.1)
         self.redirect(redirect_address)
 
