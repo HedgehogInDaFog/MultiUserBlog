@@ -7,7 +7,7 @@
     <a href="/blog">Main page</a> <p> > </p> 
     <a href="/blog/{{ product_id }}">{{ subject }}</a> <p> > </p> 
     <a href="/blog/edit/{{ product_id }}">edit</a>
-    
+
   {% else %}
 
     <a href="/blog">Main page</a> <p> > </p> 
@@ -50,14 +50,14 @@
             {% endif %} 
           </td>
           <td>
-            <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
+            <textarea name="content" class="text-area">{{ content }}</textarea>
           </td>
           <td class="error">
             {{ err_post }}
           </td>
         </tr>
       </table>
-      <input type="submit" value="Publish">
+      <input type="submit" value="Publish" class="button">
     </form>
   </div>  
 
