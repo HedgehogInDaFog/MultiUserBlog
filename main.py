@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import datetime
 import hashlib
 import jinja2
@@ -12,7 +14,6 @@ from google.appengine.ext import db
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 MAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
-COOKIE_RE = re.compile(r'.+=;\s*Path=/')
 
 POSTS_PER_PAGE = 10
 
@@ -50,7 +51,10 @@ def valid_pw(name, pw, hashtext, salt):
 
 
 def valid_cookie(cookie):
-    return cookie and len(cookie)  # TODO: COOKIE_RE.match(cookie)
+    if len(cookie) > 2:
+        if "|" in cookie[1:]:
+            return True
+    return False
 
 
 def get_user_from_cookie(self):
@@ -58,7 +62,7 @@ def get_user_from_cookie(self):
     if valid_cookie(cookie):
         user_id = cookie.split('|')[0]
         user = Users.get_by_id(int(user_id))
-        if user:  # TO THINK
+        if user:
             if user.username:
                 return str(user.username)
     return "Anonymous"
@@ -114,7 +118,7 @@ class Posts(db.Model):
     likes = db.IntegerProperty()
     author = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
-    lastEdited = db.DateTimeProperty(auto_now_add=True)
+    last_edited = db.DateTimeProperty(auto_now_add=True)
     level = db.IntegerProperty()
     rootID = db.IntegerProperty()
 
@@ -169,13 +173,14 @@ class Login(Handler):
                         WHERE username = \'%s\' ''' % str(username)
             a = db.GqlQuery(query)
 
-            if not a.get():  # TO THINK
+            if not a.get():
                 self.render("login.html",
                             username=username,
                             err_login=incorrect_login)
             elif valid_pw(username, password, a.get().hashtext, a.get().salt):
                 cookie = str(a.get().key().id()) + '|' + str(a.get().hashtext)
-                self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
+                self.response.headers.add_header('Set-Cookie',
+                                                 'login=%s; Path=/' % cookie)
                 self.redirect("/blog/welcome")
             else:
                 self.render("login.html",
@@ -186,7 +191,7 @@ class Login(Handler):
 class Logout(Handler):
 
     def get(self):
-        self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % '')
+        self.response.headers.add_header('Set-Cookie', 'login=""; Path=/')
         self.redirect("/blog/signup")
 
 
@@ -254,7 +259,8 @@ class SignUp(Handler):
                 email=email)
             a.put()
             cookie = str(a.key().id()) + '|' + pw_hash.split(',')[0]
-            self.response.headers.add_header('Set-Cookie', 'login=%s; Path=/' % cookie)
+            self.response.headers.add_header('Set-Cookie',
+                                             'login=%s; Path=/' % cookie)
             self.redirect("/blog/welcome")
 
 
@@ -336,13 +342,13 @@ class NewRecord(Handler):
             rootID = 0
         else:
             subject = " "
-            post = Posts.get_by_id(int(product_id))
-            level = post.level + 1
-            if post.level == 0:
+            post_object = Posts.get_by_id(int(product_id))
+            level = post_object.level + 1
+            if post_object.level == 0:
                 rootID = int(product_id)
             else:
-                rootID = post.rootID
-        content = self.request.get("content")  # TODO: preserve \n for better formating opportunities
+                rootID = post_object.rootID
+        content = self.request.get("content")
 
         if not valid(subject):
             self.render(
@@ -392,23 +398,28 @@ class NewComment(NewRecord):
 class EditPost(Handler):
 
     def get(self, product_id):
+
         user = get_user_from_cookie(self)
-        if Posts.get_by_id(int(product_id)):
-            post = Posts.get_by_id(int(product_id))  # TODO exception
-            if int(post.rootID) == 0:
-                isComment = 0
-            else:
-                isComment = 1
-        if post.author == user:
+        post_object = Posts.get_by_id(int(product_id))
+
+        if post_object is None:
+            self.redirect("/blog")
+
+        if int(post_object.rootID) == 0:
+            is_comment = 0
+        else:
+            is_comment = 1
+
+        if post_object.author == user:
             self.render("edit.html",
                         user=user,
-                        content=post.content,
-                        subject=post.subject,
-                        isComment=isComment,
+                        content=post_object.content,
+                        subject=post_object.subject,
+                        is_comment=is_comment,
                         product_id=product_id,
-                        rootID=post.rootID)
+                        rootID=post_object.rootID)
         else:
-            self.redirect("/blog/login")  # TODO strange logic
+            self.redirect("/blog/login")
 
     def post(self, product_id):
 
@@ -424,27 +435,27 @@ class EditPost(Handler):
                 return False
 
         subject = self.request.get("subject")
-        content = self.request.get("content")  # TODO: preserve \n for better formating opportunities
+        content = self.request.get("content")
 
         if Posts.get_by_id(int(product_id)):
-            post = Posts.get_by_id(int(product_id))
+            post_object = Posts.get_by_id(int(product_id))
         else:
-            self.redirect("/blog/login")  # TODO: strange logic
+            self.redirect("/blog/login")
 
-        if int(post.rootID) == 0:
-            isComment = 0
+        if int(post_object.rootID) == 0:
+            is_comment = 0
         else:
-            isComment = 1
+            is_comment = 1
 
-        if (isComment == 0) and (not valid(subject)):
+        if (is_comment == 0) and (not valid(subject)):
             self.render("edit.html",
                         subject=subject,
                         content=content,
                         err_subject=err_subject,
                         user=user,
                         product_id=product_id,
-                        isComment=isComment,
-                        rootID=post.rootID)
+                        is_comment=is_comment,
+                        rootID=post_object.rootID)
 
         elif not valid(content):
             self.render("edit.html",
@@ -453,16 +464,16 @@ class EditPost(Handler):
                         err_post=err_post,
                         user=user,
                         product_id=product_id,
-                        isComment=isComment,
-                        rootID=post.rootID)
+                        is_comment=is_comment,
+                        rootID=post_object.rootID)
 
         else:
-            post.content = content
-            post.subject = subject
-            post.lastEdited = datetime.datetime.now()
-            post.put()
-            if int(post.rootID) != 0:
-                self.redirect("/blog/" + str(post.rootID))
+            post_object.content = content
+            post_object.subject = subject
+            post_object.last_edited = datetime.datetime.now()
+            post_object.put()
+            if int(post_object.rootID) != 0:
+                self.redirect("/blog/" + str(post_object.rootID))
             else:
                 self.redirect("/blog/" + str(product_id))
 
@@ -476,14 +487,14 @@ class Like(Handler):
                     WHERE postID = %s
                     AND userID = %s''' % (str(product_id), str(userID))
         likes = db.GqlQuery(query)
-        post = Posts.get_by_id(int(product_id))
-        if likes.count() == 0 and post.author != user:
+        post_object = Posts.get_by_id(int(product_id))
+        if likes.count() == 0 and post_object.author != user:
             a = Likes(postID=int(product_id), userID=userID)
-            post.likes += 1
-            post.put()
+            post_object.likes += 1
+            post_object.put()
             a.put()
-        if post.rootID != 0:
-            self.redirect("/blog/" + str(post.rootID))
+        if post_object.rootID != 0:
+            self.redirect("/blog/" + str(post_object.rootID))
         else:
             self.redirect("/blog/" + str(product_id))
 
@@ -491,13 +502,13 @@ class Like(Handler):
 class DeletePost(Handler):
     def get(self, product_id):
         user = get_user_from_cookie(self)
-        post = Posts.get_by_id(int(product_id))
+        post_object = Posts.get_by_id(int(product_id))
 
         redirect_address = "/blog/"
-        if post.rootID != 0:
-            redirect_address += str(post.rootID)
+        if post_object.rootID != 0:
+            redirect_address += str(post_object.rootID)
 
-        if post.author == user:
+        if post_object.author == user:
 
             query = '''SELECT * FROM PostsHierarchy
                         WHERE postID = %s''' % str(product_id)
@@ -517,7 +528,7 @@ class DeletePost(Handler):
             for i in comments:
                 i.delete()
 
-            post.delete()
+            post_object.delete()
 
         time.sleep(0.1)
         self.redirect(redirect_address)

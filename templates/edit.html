@@ -2,7 +2,7 @@
 
 {% block content %}
 
-  {% if isComment == 0 %}
+  {% if is_comment == 0 %}
 
     <a href="/blog">Main page</a> <p> > </p> 
     <a href="/blog/{{ product_id }}">{{ subject }}</a> <p> > </p> 
@@ -17,7 +17,7 @@
   {% endif %}
 
   <div class="container">
-    {% if isComment == 0 %}
+    {% if is_comment == 0 %}
       <h2>Edit Post</h2>
     {% else %}
       <h2>Edit Comment</h2>
@@ -27,7 +27,7 @@
   <div class="container">
     <form method="post">
       <table>
-        {% if isComment == 0 %}
+        {% if is_comment == 0 %}
           <tr>
             <td class="label">
               Edit post subject: 
@@ -43,7 +43,7 @@
 
         <tr>
           <td class="label">
-            {% if isComment == 0 %}
+            {% if is_comment == 0 %}
               Edit post text: 
             {% else %}
               Edit comment:
