@@ -3,40 +3,40 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<a href="/blog">Main page</a> <p> > </p>
-<a href="/blog/login">Log in</a> 
-<div class="container">
-  <form method="post">
-    <table>
-      <tr>
-        <td class="label">
-          Username
-        </td>
-        <td>
-          <input type="text" name="username" value="{{ username }}">
-        </td>
-        <td class="error">
-          {{ err_login }}
-        </td>
-      </tr>
+  <a href="/blog">Main page</a> <p> &gt </p>
+  <a href="/blog/login">Log in</a> 
+  <div class="container">
+    <form method="post">
+      <table>
+        <tr>
+          <td class="label">
+            Username
+          </td>
+          <td>
+            <input type="text" name="username" value="{{ username }}">
+          </td>
+          <td class="error">
+            {{ err_login }}
+          </td>
+        </tr>
 
-      <tr>
-        <td class="label">
-          Password
-        </td>
-        <td>
-          <input type="password" name="password" value="{{ password }}">
-        </td>
-        <td class="error">
-          {{ err_password }}
-        </td>
-      </tr>
-    </table>
-    <input type="submit" value="Log in" class="button">
-  </form>
-</div>  
-<div class="container">
-  <p>New user?</p>
-  <a href="/blog/signup"> Sign Up</a>
-</div>
+        <tr>
+          <td class="label">
+            Password
+          </td>
+          <td>
+            <input type="password" name="password" value="{{ password }}">
+          </td>
+          <td class="error">
+            {{ err_password }}
+          </td>
+        </tr>
+      </table>
+      <input type="submit" value="Log in" class="button">
+    </form>
+  </div>  
+  <div class="container">
+    <p>New user?</p>
+    <a href="/blog/signup"> Sign Up</a>
+  </div>
 {% endblock %}

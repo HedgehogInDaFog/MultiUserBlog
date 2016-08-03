@@ -1,119 +1,119 @@
 {% extends "blog.html"%}
 
 {% block postcontent %}
-<a href="/blog">Main page</a> <p> > </p> <a href="/blog/{{ id }}">{{ post.subject }}</a>
+  <a href="/blog">Main page</a> <p> > </p> <a href="/blog/{{ id }}">{{ post.subject }}</a>
 
-<div class="post container">
-  
-  <a href="/blog/{{ id }}" class="post-subject">{{ post.subject }}</a>
+  <div class="post container">
+    
+    <a href="/blog/{{ id }}" class="post-subject">{{ post.subject }}</a>
 
-  <div class="post-content">
-    {{ post.content }}
-  </div>
+    <div class="post-content">
+      {{ post.content }}
+    </div>
 
-  <div class="post-attr">
-  Created:  {{ post.created }}
-  </div>
+    <div class="post-attr">
+      Created:  {{ post.created }}
+    </div>
 
-  <div class="post-attr">
-  Last edited:  {{ post.lastEdited }}
-  </div>
+    <div class="post-attr">
+      Last edited:  {{ post.lastEdited }}
+    </div>
 
-  <div class="post-attr">
-  Author:  {{ post.author }}
-  </div>
+    <div class="post-attr">
+      Author:  {{ post.author }}
+    </div>
 
-  <div class="post-attr">
-  Likes:  {{ post.likes }}
-  </div>
+    <div class="post-attr">
+      Likes:  {{ post.likes }}
+    </div>
 
-  <div class="post-attr">
-  Number of Comments:  {{ comments_count }}
-  </div>
-{% if user != "Anonymous" %}
+    <div class="post-attr">
+      Number of Comments:  {{ comments_count }}
+    </div>
+  {% if user != "Anonymous" %}
 
-{% if post.author != user %}
-  <a href="/blog/like/{{ id }}">
-    <div class="button">❤ Like</div>
-  </a>
-{% endif %}
+    {% if post.author != user %}
+      <a href="/blog/like/{{ id }}">
+        <div class="button">❤ Like</div>
+      </a>
+    {% endif %}
 
   <a href="/blog/newpost/{{ id }}">
     <div class="button">Comment</div>
   </a>
 
-{% if post.author == user %}
-    <a href="/blog/edit/{{ id }}">
-      <div class="button">Edit</div>
-    </a>
+    {% if post.author == user %}
+      <a href="/blog/edit/{{ id }}">
+        <div class="button">Edit</div>
+      </a>
 
-    <a href="/blog/delete/{{ post.key().id() }}">
-      <div class="button">Delete</div>
-    </a>
-{% endif %}
+      <a href="/blog/delete/{{ post.key().id() }}">
+        <div class="button">Delete</div>
+      </a>
+    {% endif %}
 
-{% endif %}
-</div>
-
-<div class="line"></div>
-<div class="post container">
-  <br>  
-  <h3>Comments:</h3>
-  <br>
-</div>
-
-{% for post in comments %}
-
-<div class="post container" style="margin-left: calc({{ post.level }} * 15px);">
-  
-  <p class="comment-subject">{{ post.subject }}</p>
-
-  <div class="comment-content">
-    {{ post.content }}
+  {% endif %}
   </div>
 
-  <div class="comment-attr">
-  Created:  {{ post.created }}
+  <div class="line"></div>
+  <div class="post container">
+    <br>  
+    <h3>Comments:</h3>
+    <br>
   </div>
 
-  <div class="comment-attr">
-  Last edited:  {{ post.lastEdited }}
-  </div>
+  {% for post in comments %}
 
-  <div class="comment-attr">
-  Author:  {{ post.author }}
-  </div>
+    <div class="post container" style="margin-left: calc({{ post.level }} * 15px);">
+      
+      <p class="comment-subject">{{ post.subject }}</p>
 
-  <div class="comment-attr">
-  Likes:  {{ post.likes }}
-  </div>
+      <div class="comment-content">
+        {{ post.content }}
+      </div>
 
-{% if user != "Anonymous" %}
+      <div class="comment-attr">
+      Created:  {{ post.created }}
+      </div>
 
-{% if post.author != user %}
-  <a href="/blog/like/{{ post.key().id() }}">
-    <div class="button">❤ Like</div>
-  </a>
-{% endif %}
+      <div class="comment-attr">
+      Last edited:  {{ post.lastEdited }}
+      </div>
 
-  <a href="/blog/newpost/{{ post.key().id() }}">
-    <div class="button">Comment</div>
-  </a>
+      <div class="comment-attr">
+      Author:  {{ post.author }}
+      </div>
 
-{% if post.author == user %}
-    <a href="/blog/edit/{{ post.key().id() }}">
-      <div class="button">Edit</div>
-    </a>
+      <div class="comment-attr">
+      Likes:  {{ post.likes }}
+      </div>
 
-    <a href="/blog/delete/{{ post.key().id() }}">
-      <div class="button">Delete</div>
-    </a>
-{% endif %}
+    {% if user != "Anonymous" %}
 
-{% endif %}
+    {% if post.author != user %}
+      <a href="/blog/like/{{ post.key().id() }}">
+        <div class="button">❤ Like</div>
+      </a>
+    {% endif %}
 
-</div>
+      <a href="/blog/newpost/{{ post.key().id() }}">
+        <div class="button">Comment</div>
+      </a>
 
-{% endfor %}
+    {% if post.author == user %}
+        <a href="/blog/edit/{{ post.key().id() }}">
+          <div class="button">Edit</div>
+        </a>
+
+        <a href="/blog/delete/{{ post.key().id() }}">
+          <div class="button">Delete</div>
+        </a>
+    {% endif %}
+
+    {% endif %}
+
+    </div>
+
+  {% endfor %}
 
 {% endblock %}  

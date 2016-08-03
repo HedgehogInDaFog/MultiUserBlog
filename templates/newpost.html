@@ -2,62 +2,62 @@
 
 {% block content %}
 
-<a href="/blog">Main page</a> <p> > </p> 
+  <a href="/blog">Main page</a> <p> > </p> 
   {% if product_id == 0 %}
-<a href="/blog/newpost">New post</a>
+    <a href="/blog/newpost">New post</a>
   {% else %}
-<a href="/blog/{{ product_id }}">Back to post</a> <p> > </p>
-<a href="/blog/newpost">New comment</a> 
-    {% endif %}
-
-{% if user != 'Anonymous' %}
-<div class="container">
-  {% if product_id == 0 %}
-    <h2>New Post</h2>
-  {% else %}
-    <h2>New Comment</h2>
+    <a href="/blog/{{ product_id }}">Back to post</a> <p> > </p>
+    <a href="/blog/newpost">New comment</a> 
   {% endif %}
-</div>  
 
-<div class="container">
-  <form method="post">
-    <table>
+  {% if user != 'Anonymous' %}
+    <div class="container">
       {% if product_id == 0 %}
-      <tr>
-        <td class="label">
-          Post subject: 
-        </td>
-        <td>
-          <input type="text" name="subject" value="{{ subject }}">
-        </td>
-        <td class="error">
-          {{ err_subject }}
-        </td>
-      </tr>
+        <h2>New Post</h2>
+      {% else %}
+        <h2>New Comment</h2>
       {% endif %}
+    </div>  
 
-      <tr>
-        <td class="label">
+    <div class="container">
+      <form method="post">
+        <table>
           {% if product_id == 0 %}
-          Post text: 
-          {% else %}
-          Comment:
+            <tr>
+              <td class="label">
+                Post subject: 
+              </td>
+              <td>
+                <input type="text" name="subject" value="{{ subject }}">
+              </td>
+              <td class="error">
+                {{ err_subject }}
+              </td>
+            </tr>
           {% endif %}
-        </td>
-        <td>
-          <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
-        </td>
-        <td class="error">
-          {{ err_post }}
-        </td>
-      </tr>
-    </table>
-    <input type="submit" value="Publish" class="button">
-  </form>
-</div>  
-{% else %}
-<div class="container">
-  <p>Please log in to add new post</p>
-</div>
-{% endif %}
+
+          <tr>
+            <td class="label">
+              {% if product_id == 0 %}
+                Post text: 
+              {% else %}
+                Comment:
+              {% endif %}
+            </td>
+            <td>
+              <textarea name="content" class="text-area">{{ content }}</textarea>
+            </td>
+            <td class="error">
+              {{ err_post }}
+            </td>
+          </tr>
+        </table>
+        <input type="submit" value="Publish" class="button">
+      </form>
+    </div>  
+  {% else %}
+    <div class="container">
+      <p>Please log in to add new post</p>
+    </div>
+  {% endif %}
 {% endblock %}

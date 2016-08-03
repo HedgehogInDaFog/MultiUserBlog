@@ -2,59 +2,63 @@
 
 {% block content %}
 
-{% if isComment == 0 %}
-<a href="/blog">Main page</a> <p> > </p> 
-<a href="/blog/{{ product_id }}">{{ subject }}</a> <p> > </p> 
-<a href="/blog/edit/{{ product_id }}">edit</a>
-{% else %}
-<a href="/blog">Main page</a> <p> > </p> 
-<a href="/blog/{{ rootID }}">Back to post</a> <p> > </p>
-<a href="/blog/edit/{{ product_id }}">edit comment</a>
-{% endif %}
-
-<div class="container">
   {% if isComment == 0 %}
-    <h2>Edit Post</h2>
+
+    <a href="/blog">Main page</a> <p> > </p> 
+    <a href="/blog/{{ product_id }}">{{ subject }}</a> <p> > </p> 
+    <a href="/blog/edit/{{ product_id }}">edit</a>
+    
   {% else %}
-    <h2>Edit Comment</h2>
+
+    <a href="/blog">Main page</a> <p> > </p> 
+    <a href="/blog/{{ rootID }}">Back to post</a> <p> > </p>
+    <a href="/blog/edit/{{ product_id }}">edit comment</a>
+
   {% endif %}
-</div>  
 
-<div class="container">
-  <form method="post">
-    <table>
-      {% if isComment == 0 %}
-      <tr>
-        <td class="label">
-          Edit post subject: 
-        </td>
-        <td>
-          <input type="text" name="subject" value="{{ subject }}">
-        </td>
-        <td class="error">
-          {{ err_subject }}
-        </td>
-      </tr>
-      {% endif %}
+  <div class="container">
+    {% if isComment == 0 %}
+      <h2>Edit Post</h2>
+    {% else %}
+      <h2>Edit Comment</h2>
+    {% endif %}
+  </div>  
 
-      <tr>
-        <td class="label">
-          {% if isComment == 0 %}
-            Edit post text: 
-          {% else %}
-            Edit comment:
-          {% endif %} 
-        </td>
-        <td>
-          <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
-        </td>
-        <td class="error">
-          {{ err_post }}
-        </td>
-      </tr>
-    </table>
-    <input type="submit" value="Publish">
-  </form>
-</div>  
+  <div class="container">
+    <form method="post">
+      <table>
+        {% if isComment == 0 %}
+          <tr>
+            <td class="label">
+              Edit post subject: 
+            </td>
+            <td>
+              <input type="text" name="subject" value="{{ subject }}">
+            </td>
+            <td class="error">
+              {{ err_subject }}
+            </td>
+          </tr>
+        {% endif %}
+
+        <tr>
+          <td class="label">
+            {% if isComment == 0 %}
+              Edit post text: 
+            {% else %}
+              Edit comment:
+            {% endif %} 
+          </td>
+          <td>
+            <textarea name="content" style="height: 100px; width: 400px;">{{ content }}</textarea>
+          </td>
+          <td class="error">
+            {{ err_post }}
+          </td>
+        </tr>
+      </table>
+      <input type="submit" value="Publish">
+    </form>
+  </div>  
 
 {% endblock %}
