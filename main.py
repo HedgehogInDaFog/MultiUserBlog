@@ -51,7 +51,7 @@ def valid_pw(name, pw, hashtext, salt):
 
 
 def valid_cookie(cookie):
-    if len(cookie) > 2:
+    if cookie and len(cookie) > 2:
         if "|" in cookie[1:]:
             return True
     return False
