@@ -10,8 +10,11 @@ Application allows user to write posts and to read posts of other users. User ca
 ### General Usage Notes
 
 To start working with MultiUser Blog you need to:
+
 1. [Open it](https://civil-dolphin-135623.appspot.com/blog)
+
 2. Sign up, using "Sign Up" button
+
 3. Use it! Write new posts, comment and like other users post
 
 ## Information for Developers
