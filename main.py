@@ -11,6 +11,8 @@ import time
 import webapp2
 from google.appengine.ext import db
 
+from models import *
+
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 MAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
@@ -31,9 +33,7 @@ def valid_password(password):
 
 
 def valid_mail(mail):
-    if mail == "":
-        return True
-    return MAIL_RE.match(mail)
+    return True if mail == "" else MAIL_RE.match(mail)
 
 
 def make_pw_hash(name, pw):
@@ -109,44 +109,6 @@ def get_comments_tree(root_post_id):
     comments = []
     dfs(root_post_id)
     return comments
-
-
-class Users(db.Model):
-    username = db.StringProperty()
-    hashtext = db.StringProperty()
-    salt = db.StringProperty()
-    email = db.StringProperty()
-
-
-class Posts(db.Model):
-    '''
-    Non obvious parameters:
-    likes - number of likes for post/comment
-    level - level in the hierarchy of posts. i.e. level=0 for post,
-        level=1 for a comment to a post, level=2 for a comment to a
-        level-1 comment, etc.
-    rootID - for posts rootID=0, for comments rootID = ID of the post.
-    So all level comments for the post will have same rootID
-    '''
-    subject = db.StringProperty()
-    content = db.TextProperty()
-    likes = db.IntegerProperty()
-    author = db.StringProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
-    last_edited = db.DateTimeProperty(auto_now_add=True)
-    level = db.IntegerProperty()
-    rootID = db.IntegerProperty()
-
-
-class PostsHierarchy(db.Model):
-    postID = db.IntegerProperty()
-    child = db.IntegerProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
-
-
-class Likes(db.Model):
-    postID = db.IntegerProperty()
-    userID = db.IntegerProperty()
 
 
 class Handler(webapp2.RequestHandler):
@@ -536,16 +498,16 @@ class DeletePost(Handler):
         user = get_user_from_cookie(self)
         post_object = Posts.get_by_id(int(product_id))
 
-        #in case we deleting a post, we want to redirect to the main page
+        # in case we deleting a post, we want to redirect to the main page
         redirect_address = "/blog/"
         if post_object.rootID != 0:
-            #in case we delete a comment, we want to redirect to a post, 
-            #whose comments were deleted
+            # in case we delete a comment, we want to redirect to a post,
+            # whose comments were deleted
             redirect_address += str(post_object.rootID)
 
         if post_object.author == user:
 
-            #delete all hierarchy entities
+            # delete all hierarchy entities
             query = '''SELECT * FROM PostsHierarchy
                         WHERE postID = %s''' % str(product_id)
             children = db.GqlQuery(query)
@@ -553,7 +515,7 @@ class DeletePost(Handler):
                 tmp = children.get(offset=i)
                 tmp.delete()
 
-            #delete all "likes"
+            # delete all "likes"
             query = '''SELECT * FROM Likes
                         WHERE postID = %s''' % str(product_id)
             like = db.GqlQuery(query)
@@ -561,16 +523,16 @@ class DeletePost(Handler):
                 tmp = like.get(offset=i)
                 tmp.delete()
 
-            #delete all comments lower (all children of the post/comments)
+            # delete all comments lower (all children of the post/comments)
             comments = get_comments_tree(product_id)
             for i in comments:
                 i.delete()
 
-            #delete post/comment
+            # delete post/comment
             post_object.delete()
 
         # without a little sleep we won't see result
-        #immediatly after redirect
+        # immediatly after redirect
         time.sleep(0.1)
         self.redirect(redirect_address)
 
