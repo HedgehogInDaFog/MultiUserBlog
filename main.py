@@ -307,10 +307,7 @@ class NewRecord(Handler):
     def post(self, product_id=0):
 
         def valid(text):
-            if len(text) > 0:
-                return True
-            else:
-                return False
+            return True if len(text) > 0 else False
 
         user = get_user_from_cookie(self)
 
@@ -421,10 +418,7 @@ class EditPost(Handler):
         err_post = "Error in post"
 
         def valid(text):
-            if len(text) > 0:
-                return True
-            else:
-                return False
+            return True if len(text) > 0 else False
 
         subject = self.request.get("subject")
         content = self.request.get("content")
@@ -538,6 +532,7 @@ class DeletePost(Handler):
 
 
 app = webapp2.WSGIApplication([
+    ('/', MainPage),
     ('/blog', MainPage),
     ('/blog/', MainPage),
     ('/blog/login', Login),
