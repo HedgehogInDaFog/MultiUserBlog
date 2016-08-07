@@ -58,6 +58,14 @@
         </tr>
       </table>
       <input type="submit" value="Publish" class="button">
+
+      {% if is_comment == 0 %}
+        <a href="/blog/{{ product_id }}">
+      {% else %}
+        <a href="/blog/{{ rootID }}">
+      {% endif %}
+        <div class="button">Cancel</div>
+      </a>
     </form>
   </div>  
 

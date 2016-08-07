@@ -356,23 +356,23 @@ class NewRecord(Handler):
         err_post = "Error in post"
 
         if int(product_id) == 0:
-            #in case we are adding new post (not comment),
-            #it'll have subject and it'll be root (be on the level 0)
+            # in case we are adding new post (not comment),
+            # it'll have subject and it'll be root (be on the level 0)
             subject = self.request.get("subject")
             level = 0
             rootID = 0
         else:
-            #in case we are adding comment, we won't have subject and
-            #it's level and rootID will depend on its parents up to root
+            # in case we are adding comment, we won't have subject and
+            # it's level and rootID will depend on its parents up to root
             subject = " "
             post_object = Posts.get_by_id(int(product_id))
             level = post_object.level + 1
             if level == 1:
-                #rootID is ID of its parent for level 1 comments
+                # rootID is ID of its parent for level 1 comments
                 rootID = int(product_id)
             else:
-                #for level 2,3,... comments, it has rootID the same
-                #as root ID of its parent
+                # for level 2,3,... comments, it has rootID the same
+                # as root ID of its parent
                 rootID = post_object.rootID
         content = self.request.get("content")
 
@@ -407,7 +407,7 @@ class NewRecord(Handler):
             b.put()
 
             # without a little sleep we won't see result
-            #immediatly after redirect
+            # immediatly after redirect
             time.sleep(0.2)
             if int(product_id) == 0:
                 self.redirect("/blog/" + str(a.key().id()))
@@ -434,7 +434,7 @@ class EditPost(Handler):
         if post_object is None:
             self.redirect("/blog")
 
-        #check if we edit a comment or a post
+        # check if we edit a comment or a post
         if int(post_object.rootID) == 0:
             is_comment = 0
         else:
@@ -519,7 +519,7 @@ class Like(Handler):
         likes = db.GqlQuery(query)
         post_object = Posts.get_by_id(int(product_id))
 
-        #check, if this user has already liked post and isn't he an author
+        # check, if this user has already liked post and isn't he an author
         if likes.count() == 0 and post_object.author != user:
             a = Likes(postID=int(product_id), userID=userID)
             post_object.likes += 1
