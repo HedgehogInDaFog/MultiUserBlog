@@ -9,9 +9,10 @@ import random
 import re
 import time
 import webapp2
+
 from google.appengine.ext import db
 
-from models import *
+from models import Users, Posts, PostsHierarchy, Likes
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
@@ -25,6 +26,9 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
 
 
 def valid_username(username):
+    # Anonymous is reserved name for the blog and is not allowed
+    if username == "Anonymous":
+        return False
     return USER_RE.match(username)
 
 
