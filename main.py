@@ -46,7 +46,7 @@ def make_pw_hash(name, pw):
         return ''.join(random.choice(string.letters) for x in xrange(5))
 
     salt = make_salt()
-    hashtext = hashlib.sha256(name + pw + salt).hexdigest()
+    hashtext = hashlib.sha256(''.join([name, pw, salt])).hexdigest()
     return '%s,%s' % (hashtext, salt)
 
 
