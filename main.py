@@ -300,6 +300,9 @@ class NewRecord(Handler):
     def get(self, product_id=0):
         user = get_user_from_cookie(self)
 
+        if user == "Anonymous":
+            self.redirect("/blog/login")
+
         self.render("newpost.html",
                     user=user,
                     product_id=product_id)
@@ -310,6 +313,9 @@ class NewRecord(Handler):
             return True if len(text) > 0 else False
 
         user = get_user_from_cookie(self)
+
+        if user == "Anonymous":
+            self.redirect("/blog/login")
 
         err_subject = "Error in subject"
         err_post = "Error in post"
@@ -412,20 +418,23 @@ class EditPost(Handler):
 
     def post(self, product_id):
 
-        user = get_user_from_cookie(self)
-
-        err_subject = "Error in subject"
-        err_post = "Error in post"
-
         def valid(text):
             return True if len(text) > 0 else False
 
         subject = self.request.get("subject")
         content = self.request.get("content")
 
+        user = get_user_from_cookie(self)
+
+        err_subject = "Error in subject"
+        err_post = "Error in post"
+
         if Posts.get_by_id(int(product_id)):
             post_object = Posts.get_by_id(int(product_id))
         else:
+            self.redirect("/blog/login")
+
+        if post_object.author != user:
             self.redirect("/blog/login")
 
         if int(post_object.rootID) == 0:
