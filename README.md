@@ -28,6 +28,13 @@ Main technologies used:
 You can find source codes here:
 [GitHub](https://github.com/TrueZarathustra/MultiUserBlog)
 
+### How to start it on a local machine
+1. Install [Python 2.7](https://www.python.org/downloads/release/python-278/)
+2. Download an install [Google App Engine](https://cloud.google.com/appengine/downloads)
+3. Start Google App Engine
+4. Clone [GitHub Repository](https://github.com/TrueZarathustra/MultiUserBlog) to your local machine and add it as existing project for Google App Engine
+For more details, read [official documentation](https://cloud.google.com/appengine/docs/python/)
+
 
 ## Contact information
 
